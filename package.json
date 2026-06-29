@@ -1,0 +1,10 @@
+{
+  "name": "de-ai-gate",
+  "version": "1.0.0",
+  "description": "A read-only content-honesty gate: catches de-AI typographic and phrase tells before content ships. No network, no credentials, no auto-run.",
+  "type": "module",
+  "bin": { "de-ai-gate": "./cli.mjs" },
+  "license": "MIT",
+  "author": "Bryan Benner",
+  "keywords": ["de-ai", "content-gate", "ai-detection", "claude-skill", "agent-skill"]
+}
