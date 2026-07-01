@@ -12,6 +12,17 @@ test('findDeAiTells flags a phrase tell case-insensitively', () => {
   assert.ok(hits.some(h => h.name === 'delve'));
 });
 
+test('findDeAiTells does NOT HARD-flag functional "unlock" microcopy (v1.0.1)', () => {
+  // progressive-disclosure UI + account/feature senses are functional, not filler
+  assert.deepEqual(findDeAiTells('<p>Complete Step 1 first to unlock this step.</p>'), []);
+  assert.deepEqual(findDeAiTells('<p>Reset your password to unlock your account.</p>'), []);
+});
+
+test('findDeAiTells still HARD-flags elevate / seamless as bare filler (v1.0.1)', () => {
+  assert.ok(findDeAiTells('<p>Elevate your brand today.</p>').some(h => /elevate . seamless/.test(h.name)));
+  assert.ok(findDeAiTells('<p>A seamless experience.</p>').some(h => /elevate . seamless/.test(h.name)));
+});
+
 test('scannable drops CSS but keeps inline script string copy', () => {
   const s = scannable('<style>a{color:red}</style><script>const t="Delve here"</script>');
   assert.equal(/color:red/.test(s), false);

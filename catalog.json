@@ -1,6 +1,6 @@
 {
-  "version": "1.0.0",
-  "_source": "content-voice granelle FINDINGS + livingwebsites de-ai-tells.js @85409a0 (F424). House style: edit here, both runtimes follow.",
+  "version": "1.0.1",
+  "_source": "content-voice granelle FINDINGS + livingwebsites de-ai-tells.js @85409a0 (F424). House style: edit here, both runtimes follow. v1.0.1: bare 'unlock' pulled from HARD phraseTells (strong functional sense, e.g. 'unlock this step/account/feature'; over-fired on progressive-disclosure UI microcopy, meris-autoview 2026-07-01); stays in watchlist for cluster-WARN. 'elevate'/'seamless' remain HARD (reliably filler as bare words).",
   "charTells": [
     { "name": "em dash (U+2014)", "source": "\\u2014", "flags": "" },
     { "name": "en dash (U+2013)", "source": "\\u2013", "flags": "" },
@@ -24,7 +24,7 @@
     { "name": "let's dive in", "source": "\\blet'?s\\s+dive\\s+in\\b", "flags": "i" },
     { "name": "navigate the complexit*", "source": "\\bnavigate\\s+the\\s+complexit", "flags": "i" },
     { "name": "in the realm of", "source": "\\bin\\s+the\\s+realm\\s+of\\b", "flags": "i" },
-    { "name": "unlock / elevate / seamless (marketing filler)", "source": "\\b(unlock|elevate|seamless(ly)?)\\b", "flags": "i" },
+    { "name": "elevate / seamless (marketing filler)", "source": "\\b(elevate|seamless(ly)?)\\b", "flags": "i" },
     { "name": "not just X, it's/but Y reframe", "source": "\\bnot\\s+(just|only|merely)\\b[^.!?\\n]{1,60}[,\\u2014;][^.!?\\n]{0,20}\\b(but|it'?s|it\\s+is)\\b", "flags": "i" }
   ],
   "banned": [],
