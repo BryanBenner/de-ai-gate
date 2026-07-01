@@ -1,0 +1,17 @@
+name: tests
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - name: JS tests (engine, CLI, catalog self-gate, publish-safety)
+        run: bun test
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Python parity + publish-safety tests
+        run: python -m pytest test/ -q

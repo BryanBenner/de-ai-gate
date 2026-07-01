@@ -1,5 +1,8 @@
 # de-ai-gate
 
+[![tests](https://github.com/BryanBenner/de-ai-gate/actions/workflows/test.yml/badge.svg)](https://github.com/BryanBenner/de-ai-gate/actions/workflows/test.yml)
+[![license: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 A read-only content-honesty gate for AI-assisted writing. Catches the typographic
 and lexical tells of machine-generated prose **before it ships** - em-dashes, curly
 quotes, invisible unicode, and high-precision AI phrase tells - with a hard pass/fail
