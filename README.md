@@ -62,4 +62,13 @@ python -m pytest test/   # 8 Python parity + publish-safety tests
 Single tell catalog (`catalog.json`) feeds both the JS and Python engines, so the
 definitions never fork. Add a tell once, in the catalog.
 
+## Live examples
+
+The de-ai gate powers real published pages - each one passes its own gate:
+
+- **[The de-AI gate](https://livingwebsites.ca/tools/de-ai-gate/)** - what it is and why it is safe to install
+- **[In your CI](https://livingwebsites.ca/tools/de-ai-gate/ci-gate/)** - wiring the exit-code contract into a pre-ship gate
+- **[vs. AI detectors](https://livingwebsites.ca/tools/de-ai-gate/vs-detectors/)** - why deterministic tells beat probabilistic detection (no false-positive paradox)
+- **[Provably safe](https://livingwebsites.ca/tools/de-ai-gate/provably-safe/)** - read-only, no network, no credentials, asserted in code
+
 MIT licensed. Author: Bryan Benner.
