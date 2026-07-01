@@ -12,6 +12,13 @@ test('findDeAiTells flags a phrase tell case-insensitively', () => {
   assert.ok(hits.some(h => h.name === 'delve'));
 });
 
+test('findDeAiTells flags "in today\'s <adj> world" filler (v1.0.2)', () => {
+  assert.ok(findDeAiTells("<p>In today's digital world, brands must adapt.</p>").some(h => /today/.test(h.name)));
+  assert.ok(findDeAiTells("<p>in today's ever-changing world</p>").some(h => /today/.test(h.name)));
+  // functional "today's world" without the filler adjective stays clean
+  assert.deepEqual(findDeAiTells("<p>The news covers today's world events.</p>"), []);
+});
+
 test('findDeAiTells does NOT HARD-flag functional "unlock" microcopy (v1.0.1)', () => {
   // progressive-disclosure UI + account/feature senses are functional, not filler
   assert.deepEqual(findDeAiTells('<p>Complete Step 1 first to unlock this step.</p>'), []);

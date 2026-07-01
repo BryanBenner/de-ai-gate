@@ -1,6 +1,6 @@
 ---
 name: de-ai-gate
-description: Use when about to publish or commit prose/HTML content or authored data records - scans for de-AI typographic tells (em-dash, curly quotes, ellipsis, invisible unicode) and high-precision AI phrase tells, plus record-source corruption, with a hard pass/fail exit code. Read-only, no network, no credentials.
+description: Use to check content for AI-writing tells / de-AI a draft / gate prose before publishing or committing - triggers include "check for AI tells", "de-AI this", "scan for em-dashes or curly quotes", "is this AI-written", "gate content before publish". Scans prose, HTML, or authored data records for de-AI typographic tells (em-dash, curly quotes, ellipsis, invisible unicode) and high-precision AI phrase tells, plus record-source corruption, with a hard pass/fail exit code. Read-only, no network, no credentials.
 ---
 
 # de-AI Gate

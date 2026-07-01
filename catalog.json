@@ -1,6 +1,6 @@
 {
-  "version": "1.0.1",
-  "_source": "content-voice granelle FINDINGS + livingwebsites de-ai-tells.js @85409a0 (F424). House style: edit here, both runtimes follow. v1.0.1: bare 'unlock' pulled from HARD phraseTells (strong functional sense, e.g. 'unlock this step/account/feature'; over-fired on progressive-disclosure UI microcopy, meris-autoview 2026-07-01); stays in watchlist for cluster-WARN. 'elevate'/'seamless' remain HARD (reliably filler as bare words).",
+  "version": "1.0.2",
+  "_source": "content-voice granelle FINDINGS + livingwebsites de-ai-tells.js @85409a0 (F424). House style: edit here, both runtimes follow. v1.0.1: bare 'unlock' pulled from HARD phraseTells (strong functional sense, e.g. 'unlock this step/account/feature'; over-fired on progressive-disclosure UI microcopy, meris-autoview 2026-07-01); stays in watchlist for cluster-WARN. 'elevate'/'seamless' remain HARD (reliably filler as bare words). v1.0.2: added 'in today's <adj> world' (sibling of the fast-paced tell; mycelium F350). Held as too functional/common for HARD (queen judgment 2026-07-01, unlock precedent): 'a sense of / air of / notion of', 'here's the thing/kicker', bare 'worth noting/mentioning'; elevate/seamless demotion held pending a 2nd consumer signal.",
   "charTells": [
     { "name": "em dash (U+2014)", "source": "\\u2014", "flags": "" },
     { "name": "en dash (U+2013)", "source": "\\u2013", "flags": "" },
@@ -20,6 +20,7 @@
     { "name": "it's important/worth to note", "source": "\\b(it'?s|it\\s+is)\\s+(important|worth)\\s+(to\\s+note|noting)\\b", "flags": "i" },
     { "name": "in conclusion / in summary", "source": "\\bin\\s+(conclusion|summary)\\b", "flags": "i" },
     { "name": "in today's fast-paced", "source": "\\bin\\s+today'?s\\s+fast-paced\\b", "flags": "i" },
+    { "name": "in today's <adj> world", "source": "\\bin\\s+today'?s\\s+(digital|modern|ever-changing|fast-changing|connected|competitive)\\s+world\\b", "flags": "i" },
     { "name": "whether you're", "source": "\\bwhether\\s+you'?re\\b", "flags": "i" },
     { "name": "let's dive in", "source": "\\blet'?s\\s+dive\\s+in\\b", "flags": "i" },
     { "name": "navigate the complexit*", "source": "\\bnavigate\\s+the\\s+complexit", "flags": "i" },

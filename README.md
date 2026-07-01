@@ -1,17 +1,62 @@
 # de-ai-gate
 
 A read-only content-honesty gate for AI-assisted writing. Catches the typographic
-and lexical tells of machine-generated prose before it ships.
+and lexical tells of machine-generated prose **before it ships** - em-dashes, curly
+quotes, invisible unicode, and high-precision AI phrase tells - with a hard pass/fail
+exit code. Deterministic regex, no network, no credentials.
+
+## Install & run (10 seconds)
+
+```bash
+git clone https://github.com/BryanBenner/de-ai-gate.git
+cd de-ai-gate
+
+# Scan served HTML/prose (JS engine - Node >=18 or Bun)
+node cli.mjs --html ./path/to/site/public
+
+# Scan authored data records (JS/JSON/TS spine) for smuggled curly quotes etc.
+node cli.mjs --records ./path/to/data
+
+# Python surface (HARD tells only, stdlib re - no deps)
+python gate.py --html ./path/to/site --records ./path/to/data
+```
+
+Example output:
+
+```
+-- de-AI gate -- 12 html + 3 record files | 2 HARD violations
+  articles/spring.html:  em dash (U+2014)
+  data/trust.md:2  curly double quote (U+201C/U+201D)
+de-AI gate FAILED (2 HARD violations).
+```
+
+**Exit code is the contract:** `0` = clean, `1` = one or more HARD violations
+(wire it straight into a pre-commit hook or CI). Use `--warn-only` for a
+non-blocking baseline pass. Run `--html` and `--records` as separate invocations.
 
 ## Why this one is safe to install
 
 Many popular Agent Skills quietly auto-run on session start, hoard credentials, or
-phone home. This one does the opposite, by construction:
+phone home. This one does the opposite, **by construction** - and proves it in code:
 
 - **Read-only** - scans files, writes nothing, exits with a code.
 - **No auto-run** - invoked explicitly; no SessionStart hook, no side effects.
 - **No credentials** - zero stored keys, zero cookie/token access, no auth.
 - **No network** - pure local regex over local files. Nothing leaves your machine.
 - **Zero dependencies** - Node >=18 or Bun for the JS engine; stdlib `re` for the Python shim.
+
+These aren't just claims - `test/test_publish_safety.py` asserts them against the
+source (no network calls, no credential reads, no auto-run hooks), and the gate
+even runs against its own catalog so its docs can't smuggle a tell.
+
+## Tests
+
+```bash
+bun test                 # 22 JS tests (engine, CLI, catalog self-gate, publish-safety)
+python -m pytest test/   # 8 Python parity + publish-safety tests
+```
+
+Single tell catalog (`catalog.json`) feeds both the JS and Python engines, so the
+definitions never fork. Add a tell once, in the catalog.
 
 MIT licensed. Author: Bryan Benner.

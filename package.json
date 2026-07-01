@@ -1,9 +1,15 @@
 {
   "name": "de-ai-gate",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A read-only content-honesty gate: catches de-AI typographic and phrase tells before content ships. No network, no credentials, no auto-run.",
   "type": "module",
   "bin": { "de-ai-gate": "./cli.mjs" },
+  "scripts": {
+    "test": "bun test && python -m pytest test/ -q"
+  },
+  "repository": { "type": "git", "url": "git+https://github.com/BryanBenner/de-ai-gate.git" },
+  "homepage": "https://github.com/BryanBenner/de-ai-gate#readme",
+  "bugs": { "url": "https://github.com/BryanBenner/de-ai-gate/issues" },
   "license": "MIT",
   "author": "Bryan Benner",
   "keywords": ["de-ai", "content-gate", "ai-detection", "claude-skill", "agent-skill"]
