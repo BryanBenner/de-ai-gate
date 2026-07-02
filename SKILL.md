@@ -28,7 +28,14 @@ Exit `1` on any HARD violation (use `--warn-only` for non-blocking baseline mode
 
 ## One catalog, two runtimes
 
-All tells live in `catalog.json` (sourced from the content-voice granelle). `engine.js` (JS) and `gate.py` (Python) both read it, so the tell definitions are single-source and never fork. Add a new tell once, in the catalog. Note: JS and Python regex word-boundary handling differs on text where a non-ASCII letter is directly adjacent to a tell word (no separator) - a near-zero case in real prose; both engines otherwise agree.
+All tells live in `catalog.json`. `engine.js` (JS) and `gate.py` (Python) both read it, so the tell definitions are single-source and never fork. Add a new tell once, in the catalog. Note: JS and Python regex word-boundary handling differs on text where a non-ASCII letter is directly adjacent to a tell word (no separator) - a near-zero case in real prose; both engines otherwise agree.
+
+## Scope
+
+Gate reader-facing prose: README/docs, published pages, skill instructions,
+release notes, About text, UI copy. Skip detector code and test fixtures (they
+contain the glyphs they detect), commit messages (gate the shipped docs, not
+history), and verbatim third-party quotes. Full scope rules in `README.md`.
 
 ## Safety
 

@@ -52,6 +52,31 @@ These aren't just claims - `test/test_publish_safety.py` asserts them against th
 source (no network calls, no credential reads, no auto-run hooks), and the gate
 even runs against its own catalog so its docs can't smuggle a tell.
 
+## What to gate (and what to skip)
+
+Scope rules learned by running this gate across a fleet of repos and sites:
+
+**Gate every reader-facing prose surface:**
+
+- README and docs, published pages, article copy
+- SKILL.md and any agent-skill instruction text
+- Release notes and the repo About/description text
+- UI copy and anything else a reader sees under your name
+
+**Skip, deliberately:**
+
+- **Detector code and test fixtures** - engine, catalog, and test files contain
+  the very glyphs and phrases they detect. That is the detector, not a tell;
+  this repo's own self-gate skips them for exactly that reason.
+- **Commit messages** - not a reader-facing prose surface, and fixing them after
+  the fact means history rewrites. Gate the docs the commit ships instead.
+- **Quoted third-party material** - a verbatim quotation keeps its source's
+  punctuation. Attribute it; don't rewrite it.
+
+Enforce the prose set in CI rather than memory: this repo gates its own README
+and SKILL.md in `test/self-gate.test.js`, and the sibling gates' repos run the
+same pass before every push.
+
 ## Tests
 
 ```bash
