@@ -2,7 +2,7 @@
 // Canonical de-AI detection engine. Reads catalog.json so the tell definitions are
 // single-source and never fork between the JS engine and gate.py. Note: JS \b is
 // ASCII-only while Python \b is Unicode-aware; adjacent non-ASCII text may differ
-// (near-zero in real prose). Lifted from livingwebsites
+// (near-zero in real prose). Lifted from production use.
 // tools/content-engine/gates/de-ai-tells.js @85409a0 (F424) - the only prior
 // variant carrying the record-source corruption scan.
 import { readFileSync } from 'node:fs';

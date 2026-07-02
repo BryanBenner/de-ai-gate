@@ -1,39 +1,147 @@
 {
   "version": "1.0.2",
-  "_source": "content-voice granelle FINDINGS + livingwebsites de-ai-tells.js @85409a0 (F424). House style: edit here, both runtimes follow. v1.0.1: bare 'unlock' pulled from HARD phraseTells (strong functional sense, e.g. 'unlock this step/account/feature'; over-fired on progressive-disclosure UI microcopy, meris-autoview 2026-07-01); stays in watchlist for cluster-WARN. 'elevate'/'seamless' remain HARD (reliably filler as bare words). v1.0.2: added 'in today's <adj> world' (sibling of the fast-paced tell; mycelium F350). Held as too functional/common for HARD (queen judgment 2026-07-01, unlock precedent): 'a sense of / air of / notion of', 'here's the thing/kicker', bare 'worth noting/mentioning'; elevate/seamless demotion held pending a 2nd consumer signal.",
+  "_source": "House style: edit here, both runtimes follow. v1.0.1: bare 'unlock' pulled from HARD phraseTells (strong functional sense, e.g. 'unlock this step/account/feature'; over-fired on progressive-disclosure UI microcopy in production, 2026-07-01); stays in watchlist for cluster-WARN. 'elevate'/'seamless' remain HARD (reliably filler as bare words). v1.0.2: added 'in today's <adj> world' (sibling of the fast-paced tell). Held as too functional/common for HARD (unlock precedent): 'a sense of / air of / notion of', 'here's the thing/kicker', bare 'worth noting/mentioning'; elevate/seamless demotion held pending a second consumer signal. v1.0.3: provenance note rewritten for release (internal sourcing references removed); tell definitions unchanged.",
   "charTells": [
-    { "name": "em dash (U+2014)", "source": "\\u2014", "flags": "" },
-    { "name": "en dash (U+2013)", "source": "\\u2013", "flags": "" },
-    { "name": "ellipsis char (U+2026)", "source": "\\u2026", "flags": "" },
-    { "name": "invisible unicode (NBSP/ZWSP/NNBSP/em-space/ZWNJ/ZWJ/BOM)", "source": "[\\u00A0\\u200B\\u202F\\u2003\\u200C\\u200D\\uFEFF]", "flags": "" }
+    {
+      "name": "em dash (U+2014)",
+      "source": "\\u2014",
+      "flags": ""
+    },
+    {
+      "name": "en dash (U+2013)",
+      "source": "\\u2013",
+      "flags": ""
+    },
+    {
+      "name": "ellipsis char (U+2026)",
+      "source": "\\u2026",
+      "flags": ""
+    },
+    {
+      "name": "invisible unicode (NBSP/ZWSP/NNBSP/em-space/ZWNJ/ZWJ/BOM)",
+      "source": "[\\u00A0\\u200B\\u202F\\u2003\\u200C\\u200D\\uFEFF]",
+      "flags": ""
+    }
   ],
   "recordCorruption": [
-    { "name": "curly double quote (U+201C/U+201D)", "source": "[\\u201C\\u201D]", "flags": "" },
-    { "name": "curly single quote / apostrophe (U+2018/U+2019)", "source": "[\\u2018\\u2019]", "flags": "" },
-    { "name": "no-break space (U+00A0)", "source": "\\u00A0", "flags": "" },
-    { "name": "ellipsis char (U+2026)", "source": "\\u2026", "flags": "" }
+    {
+      "name": "curly double quote (U+201C/U+201D)",
+      "source": "[\\u201C\\u201D]",
+      "flags": ""
+    },
+    {
+      "name": "curly single quote / apostrophe (U+2018/U+2019)",
+      "source": "[\\u2018\\u2019]",
+      "flags": ""
+    },
+    {
+      "name": "no-break space (U+00A0)",
+      "source": "\\u00A0",
+      "flags": ""
+    },
+    {
+      "name": "ellipsis char (U+2026)",
+      "source": "\\u2026",
+      "flags": ""
+    }
   ],
   "phraseTells": [
-    { "name": "delve", "source": "\\bdelv(e|es|ed|ing)\\b", "flags": "i" },
-    { "name": "tapestry / realm", "source": "\\b(tapestry|realm)\\b", "flags": "i" },
-    { "name": "testament to", "source": "\\b((stands?|serves?)\\s+as\\s+a\\s+testament|testament\\s+to)\\b", "flags": "i" },
-    { "name": "it's important/worth to note", "source": "\\b(it'?s|it\\s+is)\\s+(important|worth)\\s+(to\\s+note|noting)\\b", "flags": "i" },
-    { "name": "in conclusion / in summary", "source": "\\bin\\s+(conclusion|summary)\\b", "flags": "i" },
-    { "name": "in today's fast-paced", "source": "\\bin\\s+today'?s\\s+fast-paced\\b", "flags": "i" },
-    { "name": "in today's <adj> world", "source": "\\bin\\s+today'?s\\s+(digital|modern|ever-changing|fast-changing|connected|competitive)\\s+world\\b", "flags": "i" },
-    { "name": "whether you're", "source": "\\bwhether\\s+you'?re\\b", "flags": "i" },
-    { "name": "let's dive in", "source": "\\blet'?s\\s+dive\\s+in\\b", "flags": "i" },
-    { "name": "navigate the complexit*", "source": "\\bnavigate\\s+the\\s+complexit", "flags": "i" },
-    { "name": "in the realm of", "source": "\\bin\\s+the\\s+realm\\s+of\\b", "flags": "i" },
-    { "name": "elevate / seamless (marketing filler)", "source": "\\b(elevate|seamless(ly)?)\\b", "flags": "i" },
-    { "name": "not just X, it's/but Y reframe", "source": "\\bnot\\s+(just|only|merely)\\b[^.!?\\n]{1,60}[,\\u2014;][^.!?\\n]{0,20}\\b(but|it'?s|it\\s+is)\\b", "flags": "i" }
+    {
+      "name": "delve",
+      "source": "\\bdelv(e|es|ed|ing)\\b",
+      "flags": "i"
+    },
+    {
+      "name": "tapestry / realm",
+      "source": "\\b(tapestry|realm)\\b",
+      "flags": "i"
+    },
+    {
+      "name": "testament to",
+      "source": "\\b((stands?|serves?)\\s+as\\s+a\\s+testament|testament\\s+to)\\b",
+      "flags": "i"
+    },
+    {
+      "name": "it's important/worth to note",
+      "source": "\\b(it'?s|it\\s+is)\\s+(important|worth)\\s+(to\\s+note|noting)\\b",
+      "flags": "i"
+    },
+    {
+      "name": "in conclusion / in summary",
+      "source": "\\bin\\s+(conclusion|summary)\\b",
+      "flags": "i"
+    },
+    {
+      "name": "in today's fast-paced",
+      "source": "\\bin\\s+today'?s\\s+fast-paced\\b",
+      "flags": "i"
+    },
+    {
+      "name": "in today's <adj> world",
+      "source": "\\bin\\s+today'?s\\s+(digital|modern|ever-changing|fast-changing|connected|competitive)\\s+world\\b",
+      "flags": "i"
+    },
+    {
+      "name": "whether you're",
+      "source": "\\bwhether\\s+you'?re\\b",
+      "flags": "i"
+    },
+    {
+      "name": "let's dive in",
+      "source": "\\blet'?s\\s+dive\\s+in\\b",
+      "flags": "i"
+    },
+    {
+      "name": "navigate the complexit*",
+      "source": "\\bnavigate\\s+the\\s+complexit",
+      "flags": "i"
+    },
+    {
+      "name": "in the realm of",
+      "source": "\\bin\\s+the\\s+realm\\s+of\\b",
+      "flags": "i"
+    },
+    {
+      "name": "elevate / seamless (marketing filler)",
+      "source": "\\b(elevate|seamless(ly)?)\\b",
+      "flags": "i"
+    },
+    {
+      "name": "not just X, it's/but Y reframe",
+      "source": "\\bnot\\s+(just|only|merely)\\b[^.!?\\n]{1,60}[,\\u2014;][^.!?\\n]{0,20}\\b(but|it'?s|it\\s+is)\\b",
+      "flags": "i"
+    }
   ],
   "banned": [],
   "watchlist": [
-    "showcase", "showcasing", "underscore", "underscoring", "bolster", "foster",
-    "emphasize", "highlight", "align with", "leverage", "robust", "pivotal",
-    "facilitate", "seamless", "unlock", "elevate", "landscape", "realm",
-    "sphere", "arena", "ecosystem"
+    "showcase",
+    "showcasing",
+    "underscore",
+    "underscoring",
+    "bolster",
+    "foster",
+    "emphasize",
+    "highlight",
+    "align with",
+    "leverage",
+    "robust",
+    "pivotal",
+    "facilitate",
+    "seamless",
+    "unlock",
+    "elevate",
+    "landscape",
+    "realm",
+    "sphere",
+    "arena",
+    "ecosystem"
   ],
-  "transitions": ["Moreover", "Furthermore", "Additionally", "Notably", "That said", "In addition"]
+  "transitions": [
+    "Moreover",
+    "Furthermore",
+    "Additionally",
+    "Notably",
+    "That said",
+    "In addition"
+  ]
 }
