@@ -90,3 +90,10 @@ def test_entity_parity_with_js_engine_v104():
     assert js_names, "entity parity sample produced zero JS hits -- vacuous"
     py_names = sorted(h["name"] for h in gate.find_de_ai_tells(sample))
     assert js_names == py_names
+
+
+def test_nbsp_entity_clean_literal_flags_v105():
+    # v1.0.4 regression (livingwebsites F598): decoded &nbsp; false-positived the
+    # invisible-unicode tell on legitimate pages. Entities are deliberate; literals flag.
+    assert gate.find_de_ai_tells("<p>a&nbsp;b and c&#160;d</p>") == []
+    assert any("invisible" in h["name"] for h in gate.find_de_ai_tells("<p>a b</p>"))

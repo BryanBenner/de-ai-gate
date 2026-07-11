@@ -28,25 +28,31 @@ export function scannable(html) {
   return s;
 }
 
-// Decode HTML character references to their TRUE codepoints, so entity-encoded
-// typography cannot slip past the char tells: the browser renders &mdash; and
-// &#8212; as an em-dash either way, so the gate must see the same character the
-// reader sees. Deliberately NOT the same as extractVisibleText's normalizing
-// decode below — that one maps &nbsp; to a plain space for structural analysis,
-// which would mask the invisible-unicode tell here. Single pass, numeric first:
-// double-escaped text about entities ("&amp;mdash;") stays literal and clean.
+// Decode HTML character references before the tell scan, with intent preserved:
+// - Reader-VISIBLE glyph refs (&mdash; &#8212; &hellip; smart quotes) decode to
+//   their TRUE codepoints - the browser renders the tell either way, so the gate
+//   must see the same character the reader sees.
+// - INVISIBLE-class refs (&nbsp; &thinsp; &shy; &zwnj; and their numeric forms)
+//   decode to a plain space: an explicit entity is a deliberate authoring choice
+//   (ubiquitous legitimate HTML), NOT the paste-artifact the invisible-unicode
+//   tell hunts. A literal U+00A0/ZWSP in the raw text is untouched by decoding
+//   and still flags. (v1.0.5 - v1.0.4 decoded &nbsp; to U+00A0 and false-
+//   positived the tell across ordinary pages.)
+// Single pass, numeric first: double-escaped "&amp;mdash;" stays literal/clean.
+const INVISIBLE_CODEPOINTS = new Set([0x00A0, 0x2009, 0x2002, 0x2003, 0x00AD, 0x200B, 0x200C, 0x200D, 0x202F, 0x200A, 0xFEFF]);
 const NAMED_REFS = {
   amp: '&', lt: '<', gt: '>', quot: '"', apos: "'",
-  nbsp: ' ', thinsp: ' ', ensp: ' ', emsp: ' ',
-  shy: '­', zwnj: '‌', zwj: '‍',
+  nbsp: ' ', thinsp: ' ', ensp: ' ', emsp: ' ',
+  shy: ' ', zwnj: ' ', zwj: ' ',
   mdash: '—', ndash: '–', hellip: '…',
   rsquo: '’', lsquo: '‘', ldquo: '“', rdquo: '”',
   copy: '©', reg: '®',
 };
+const fromCode = (cp) => (INVISIBLE_CODEPOINTS.has(cp) ? ' ' : String.fromCodePoint(cp));
 export function decodeCharRefs(s) {
   return s
-    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
-    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(parseInt(d, 10)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => fromCode(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => fromCode(parseInt(d, 10)))
     .replace(/&([a-z]+);/gi, (m, n) => (n.toLowerCase() in NAMED_REFS ? NAMED_REFS[n.toLowerCase()] : m));
 }
 
@@ -89,8 +95,8 @@ function decodeEntities(s) {
     mdash: '—', ndash: '–', hellip: '…', rsquo: '’',
     lsquo: '‘', ldquo: '“', rdquo: '”', copy: '©', reg: '®' };
   return s
-    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
-    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(parseInt(d, 10)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => fromCode(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => fromCode(parseInt(d, 10)))
     .replace(/&([a-z]+);/gi, (m, n) => (n.toLowerCase() in named ? named[n.toLowerCase()] : m));
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "de-ai-gate",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A read-only content-honesty gate: catches de-AI typographic and phrase tells before content ships. No network, no credentials, no auto-run.",
   "type": "module",
   "bin": { "de-ai-gate": "./cli.mjs" },

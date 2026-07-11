@@ -3,6 +3,12 @@
 All notable changes to de-ai-gate are documented here.
 Format follows Keep a Changelog; this project uses semantic versioning.
 
+## [1.0.5] - 2026-07-11
+### Fixed
+- Regression in 1.0.4 (field report: livingwebsites F598): decoding `&nbsp;`-class references to their true codepoints made the invisible-unicode tell false-positive on ordinary, legitimate pages (79 hits across ~40 clean pages in the reporting deployment). Invisible-class references (named `&nbsp;`/`&thinsp;`/`&shy;`/`&zwnj;`/... and their numeric forms) now decode to a plain space for tell-scanning: an explicit entity is a deliberate authoring choice, not the paste artifact the tell hunts. Reader-visible glyph references (dashes, ellipsis, smart quotes) keep true-codepoint decode. A LITERAL invisible character in raw text is untouched by decoding and still flags.
+### Added
+- Regression tests both ways in both suites: entity forms clean, literal U+00A0/U+200B still flagged.
+
 ## [1.0.4] - 2026-07-11
 ### Fixed
 - HTML character references (named, decimal, hex) are now decoded to their true codepoints before the HARD tell scan, in both engines. Previously `&mdash;` / `&#8212;` / `&hellip;` / `&nbsp;`-class entities rendered as tell typography in the browser but never matched the character regexes, so entity-emitting build pipelines passed the gate while shipping the tells. Found live: 72 em-dash tells across 6 gated-PASS pages on one production site, ~90 on another.

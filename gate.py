@@ -24,21 +24,27 @@ def _scannable(html: str) -> str:
     s = re.sub(r"(^|[^:])//[^\n]*", r"\1", s)
     return s
 
-# Mirror of engine.js NAMED_REFS/decodeCharRefs -- true codepoints, so
-# entity-encoded typography (&mdash; / &#8212;) cannot slip past the char tells.
+# Mirror of engine.js NAMED_REFS/decodeCharRefs (v1.0.5 semantics): visible glyph
+# refs decode to true codepoints; INVISIBLE-class refs (named + numeric) decode to
+# a plain space -- explicit entities are deliberate authoring, not the paste
+# artifact the invisible-unicode tell hunts. Literal invisible chars still flag.
 # Single pass, numeric first: double-escaped "&amp;mdash;" stays literal.
+_INVISIBLE_CODEPOINTS = {0x00A0, 0x2009, 0x2002, 0x2003, 0x00AD, 0x200B, 0x200C, 0x200D, 0x202F, 0x200A, 0xFEFF}
 _NAMED_REFS = {
     "amp": "&", "lt": "<", "gt": ">", "quot": '"', "apos": "'",
-    "nbsp": " ", "thinsp": " ", "ensp": " ", "emsp": " ",
-    "shy": "­", "zwnj": "‌", "zwj": "‍",
+    "nbsp": " ", "thinsp": " ", "ensp": " ", "emsp": " ",
+    "shy": " ", "zwnj": " ", "zwj": " ",
     "mdash": "—", "ndash": "–", "hellip": "…",
     "rsquo": "’", "lsquo": "‘", "ldquo": "“", "rdquo": "”",
     "copy": "©", "reg": "®",
 }
 
+def _from_code(cp: int) -> str:
+    return " " if cp in _INVISIBLE_CODEPOINTS else chr(cp)
+
 def _decode_char_refs(s: str) -> str:
-    s = re.sub(r"&#x([0-9a-f]+);", lambda m: chr(int(m.group(1), 16)), s, flags=re.I)
-    s = re.sub(r"&#(\d+);", lambda m: chr(int(m.group(1))), s)
+    s = re.sub(r"&#x([0-9a-f]+);", lambda m: _from_code(int(m.group(1), 16)), s, flags=re.I)
+    s = re.sub(r"&#(\d+);", lambda m: _from_code(int(m.group(1))), s)
     return re.sub(r"&([a-z]+);", lambda m: _NAMED_REFS.get(m.group(1).lower(), m.group(0)), s, flags=re.I)
 
 def find_de_ai_tells(html: str):

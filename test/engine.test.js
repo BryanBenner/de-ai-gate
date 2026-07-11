@@ -68,7 +68,14 @@ test('entity-encoded char tells decode before scanning (v1.0.4)', () => {
   assert.ok(findDeAiTells('<p>fast &#8212; reliable</p>').some(h => /em dash/.test(h.name)));
   assert.ok(findDeAiTells('<p>fast &#x2014; reliable</p>').some(h => /em dash/.test(h.name)));
   assert.ok(findDeAiTells('<p>wait&hellip; more</p>').some(h => /ellipsis/.test(h.name)));
-  assert.ok(findDeAiTells('<p>a&nbsp;b</p>').some(h => /invisible unicode/.test(h.name)));
+});
+
+test('invisible-class refs are deliberate authoring, literals are the tell (v1.0.5)', () => {
+  // explicit entities (named or numeric) are ubiquitous legitimate HTML - clean
+  assert.deepEqual(findDeAiTells('<p>a&nbsp;b and c&#160;d and e&shy;f</p>'), []);
+  // a LITERAL invisible char in the raw text still flags
+  assert.ok(findDeAiTells('<p>a b</p>').some(h => /invisible unicode/.test(h.name)));
+  assert.ok(findDeAiTells('<p>a​b</p>').some(h => /invisible unicode/.test(h.name)));
 });
 
 test('smart-quote apostrophes do not launder phrase tells (v1.0.4)', () => {
