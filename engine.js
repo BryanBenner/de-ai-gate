@@ -28,12 +28,44 @@ export function scannable(html) {
   return s;
 }
 
+// Decode HTML character references to their TRUE codepoints, so entity-encoded
+// typography cannot slip past the char tells: the browser renders &mdash; and
+// &#8212; as an em-dash either way, so the gate must see the same character the
+// reader sees. Deliberately NOT the same as extractVisibleText's normalizing
+// decode below — that one maps &nbsp; to a plain space for structural analysis,
+// which would mask the invisible-unicode tell here. Single pass, numeric first:
+// double-escaped text about entities ("&amp;mdash;") stays literal and clean.
+const NAMED_REFS = {
+  amp: '&', lt: '<', gt: '>', quot: '"', apos: "'",
+  nbsp: ' ', thinsp: ' ', ensp: ' ', emsp: ' ',
+  shy: '­', zwnj: '‌', zwj: '‍',
+  mdash: '—', ndash: '–', hellip: '…',
+  rsquo: '’', lsquo: '‘', ldquo: '“', rdquo: '”',
+  copy: '©', reg: '®',
+};
+export function decodeCharRefs(s) {
+  return s
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(parseInt(d, 10)))
+    .replace(/&([a-z]+);/gi, (m, n) => (n.toLowerCase() in NAMED_REFS ? NAMED_REFS[n.toLowerCase()] : m));
+}
+
 // Char + phrase tells on SERVED HTML. Any single hit is a violation.
+// Char tells scan the decoded text as-is; phrase tells additionally scan a
+// smart-quote-normalized copy, because the apostrophe-bearing phrases
+// ("it's important to note", "whether you're", "let's dive in") are written
+// with ASCII quotes in the catalog while AI output typically carries curly
+// ones — typography must not launder the phrase.
 export function findDeAiTells(html) {
-  const text = scannable(html);
+  const text = decodeCharRefs(scannable(html));
+  const phraseText = text.replace(/[‘’]/g, "'").replace(/[“”]/g, '"');
   const hits = [];
-  for (const t of [...CATALOG.charTells, ...CATALOG.phraseTells]) {
+  for (const t of CATALOG.charTells) {
     const m = text.match(t.re);
+    if (m) hits.push({ name: t.name, match: m[0] });
+  }
+  for (const t of CATALOG.phraseTells) {
+    const m = phraseText.match(t.re);
     if (m) hits.push({ name: t.name, match: m[0] });
   }
   return hits;

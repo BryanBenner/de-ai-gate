@@ -24,11 +24,34 @@ def _scannable(html: str) -> str:
     s = re.sub(r"(^|[^:])//[^\n]*", r"\1", s)
     return s
 
+# Mirror of engine.js NAMED_REFS/decodeCharRefs -- true codepoints, so
+# entity-encoded typography (&mdash; / &#8212;) cannot slip past the char tells.
+# Single pass, numeric first: double-escaped "&amp;mdash;" stays literal.
+_NAMED_REFS = {
+    "amp": "&", "lt": "<", "gt": ">", "quot": '"', "apos": "'",
+    "nbsp": " ", "thinsp": " ", "ensp": " ", "emsp": " ",
+    "shy": "­", "zwnj": "‌", "zwj": "‍",
+    "mdash": "—", "ndash": "–", "hellip": "…",
+    "rsquo": "’", "lsquo": "‘", "ldquo": "“", "rdquo": "”",
+    "copy": "©", "reg": "®",
+}
+
+def _decode_char_refs(s: str) -> str:
+    s = re.sub(r"&#x([0-9a-f]+);", lambda m: chr(int(m.group(1), 16)), s, flags=re.I)
+    s = re.sub(r"&#(\d+);", lambda m: chr(int(m.group(1))), s)
+    return re.sub(r"&([a-z]+);", lambda m: _NAMED_REFS.get(m.group(1).lower(), m.group(0)), s, flags=re.I)
+
 def find_de_ai_tells(html: str):
-    text = _scannable(html)
+    text = _decode_char_refs(_scannable(html))
+    # Smart-quote-normalized copy for phrase tells (catalog writes ASCII quotes).
+    phrase_text = text.translate(str.maketrans({"‘": "'", "’": "'", "“": '"', "”": '"'}))
     hits = []
-    for name, rx in _CHAR + _PHRASE:
+    for name, rx in _CHAR:
         m = rx.search(text)
+        if m:
+            hits.append({"name": name, "match": m.group(0)})
+    for name, rx in _PHRASE:
+        m = rx.search(phrase_text)
         if m:
             hits.append({"name": name, "match": m.group(0)})
     return hits

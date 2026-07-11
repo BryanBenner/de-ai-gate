@@ -3,6 +3,14 @@
 All notable changes to de-ai-gate are documented here.
 Format follows Keep a Changelog; this project uses semantic versioning.
 
+## [1.0.4] - 2026-07-11
+### Fixed
+- HTML character references (named, decimal, hex) are now decoded to their true codepoints before the HARD tell scan, in both engines. Previously `&mdash;` / `&#8212;` / `&hellip;` / `&nbsp;`-class entities rendered as tell typography in the browser but never matched the character regexes, so entity-emitting build pipelines passed the gate while shipping the tells. Found live: 72 em-dash tells across 6 gated-PASS pages on one production site, ~90 on another.
+- Phrase tells are matched against a smart-quote-normalized copy of the text: curly apostrophes (`it’s important to note`, literal or via `&rsquo;`) no longer launder apostrophe-bearing phrase tells written with ASCII quotes in the catalog.
+- Double-escaped text about entities (`&amp;mdash;`) stays literal and clean (single-pass decode, numeric before named).
+### Added
+- Regression tests for every bypass form in both suites, plus a JS/Python entity-parity test.
+
 ## [1.0.2] - 2026-07-01
 ### Added
 - New HARD phrase tell: "in today's <adj> world" (digital / modern / ever-changing / ...), sibling of the existing fast-paced tell.

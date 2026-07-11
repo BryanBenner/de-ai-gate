@@ -63,3 +63,20 @@ test('findStructuralWarnings returns [] for varied human prose', () => {
     + 'could get back on the roof safely, we finished the flashing and cleaned up. Done.</p>';
   assert.deepEqual(findStructuralWarnings(varied), []);
 });
+test('entity-encoded char tells decode before scanning (v1.0.4)', () => {
+  assert.ok(findDeAiTells('<p>fast &mdash; reliable</p>').some(h => /em dash/.test(h.name)));
+  assert.ok(findDeAiTells('<p>fast &#8212; reliable</p>').some(h => /em dash/.test(h.name)));
+  assert.ok(findDeAiTells('<p>fast &#x2014; reliable</p>').some(h => /em dash/.test(h.name)));
+  assert.ok(findDeAiTells('<p>wait&hellip; more</p>').some(h => /ellipsis/.test(h.name)));
+  assert.ok(findDeAiTells('<p>a&nbsp;b</p>').some(h => /invisible unicode/.test(h.name)));
+});
+
+test('smart-quote apostrophes do not launder phrase tells (v1.0.4)', () => {
+  assert.ok(findDeAiTells('<p>it’s important to note this.</p>').some(h => /important/.test(h.name)));
+  assert.ok(findDeAiTells('<p>it&rsquo;s important to note this.</p>').some(h => /important/.test(h.name)));
+  assert.ok(findDeAiTells('<p>whether you’re new or not</p>').some(h => /whether/.test(h.name)));
+});
+
+test('double-escaped text ABOUT entities stays clean (v1.0.4)', () => {
+  assert.deepEqual(findDeAiTells('<p>write &amp;mdash; to emit a dash entity</p>'), []);
+});

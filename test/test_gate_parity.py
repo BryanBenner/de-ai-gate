@@ -73,3 +73,20 @@ def test_known_nonascii_boundary_divergence_is_documented():
     assert "delve" not in py_names, (
         "Expected Python to NOT find delve in non-ASCII-adjacent sample; got: " + str(py_names)
     )
+
+
+def test_entity_and_smartquote_bypass_closed_v104():
+    # Entity-encoded typography and curly apostrophes must hit the same tells
+    # as their literal/ASCII forms (the 2026-07-11 blind spot).
+    assert any("em dash" in h["name"] for h in gate.find_de_ai_tells("<p>a &mdash; b</p>"))
+    assert any("em dash" in h["name"] for h in gate.find_de_ai_tells("<p>a &#8212; b</p>"))
+    assert any("important" in h["name"] for h in gate.find_de_ai_tells("<p>it’s important to note.</p>"))
+    assert gate.find_de_ai_tells("<p>write &amp;mdash; to emit a dash entity</p>") == []
+
+
+def test_entity_parity_with_js_engine_v104():
+    sample = "<p>it&rsquo;s important to note this &mdash; truly&hellip;</p>"
+    js_names = _js_tell_names(sample)
+    assert js_names, "entity parity sample produced zero JS hits -- vacuous"
+    py_names = sorted(h["name"] for h in gate.find_de_ai_tells(sample))
+    assert js_names == py_names
