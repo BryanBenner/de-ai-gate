@@ -75,6 +75,15 @@ test('findStructuralWarnings does NOT flag a real hyphenated compound or code fe
   const warns = findStructuralWarnings('<p>The well-built deck used pressure-treated lumber.</p>');
   assert.ok(!warns.some(w => /double-hyphen/.test(w)));
 });
+test('findStructuralWarnings flags a mailto: anchor', () => {
+  const warns = findStructuralWarnings('<p>Email us at <a href="mailto:info@example.com">info@example.com</a>.</p>');
+  assert.ok(warns.some(w => /mailto/.test(w)));
+});
+test('findStructuralWarnings does NOT flag tel:/sms:/wa.me anchors', () => {
+  const html = '<p><a href="tel:+15551234567">Call</a> <a href="sms:+15551234567">Text</a> '
+    + '<a href="https://wa.me/15551234567">WhatsApp</a></p>';
+  assert.ok(!findStructuralWarnings(html).some(w => /mailto/.test(w)));
+});
 test('entity-encoded char tells decode before scanning (v1.0.4)', () => {
   assert.ok(findDeAiTells('<p>fast &mdash; reliable</p>').some(h => /em dash/.test(h.name)));
   assert.ok(findDeAiTells('<p>fast &#8212; reliable</p>').some(h => /em dash/.test(h.name)));

@@ -3,6 +3,10 @@
 All notable changes to de-ai-gate are documented here.
 Format follows Keep a Changelog; this project uses semantic versioning.
 
+## [1.0.7] - 2026-07-23
+### Added
+- `findStructuralWarnings` (JS engine) now also flags any `href="mailto:"` anchor (WARN-tier), checked against the raw HTML rather than the tag-stripped visible-text pass, since an anchor's `href` attribute never survives that stripping. Scoped to `href=` only — `tel:`/`sms:`/`wa.me` anchors are explicitly out of scope (tap-to-call/text is desired mobile behavior, not a tell). Ported from field use (livingwebsites dispatch 2026-07-23T171400Z-001, operator directive: mailto anchors open the visitor's local mail client, which nobody wants in 2026 — a form or a click-to-copy control is the honest alternative).
+
 ## [1.0.6] - 2026-07-23
 ### Added
 - `findStructuralWarnings` (JS engine) now flags spaced (`" -- "`) or unspaced (`"word--word"`) double-hyphen used as an em-dash stand-in. The existing charTells/phraseTells groups already catch a literal em dash (U+2014), which pushed authors to launder past the gate by typing `--` instead — the gate never saw the substitution because `--` isn't a tell. Landed as a STRUCTURAL WARNING (not a hard-fail): a fleet-wide blast-radius scan found ~41 already-shipped pages on the reporting deployment using this construction; promoting straight to ERROR would have newly-failed a large slice of a live fleet with no rewrite done yet.

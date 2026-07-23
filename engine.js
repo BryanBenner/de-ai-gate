@@ -141,10 +141,32 @@ function stdev(nums) {
 // all NEW content immediately while staging the ERROR promotion as a follow-up sweep.
 const DOUBLE_HYPHEN_RE = /(\s-{2,}\s)|(\b\w+-{2,}\w+\b)/g;
 
+// `mailto:` anchor, WARN-level (operator directive 2026-07-23: "every mailto: should be
+// removed and redirected to the form... they either want a form, or the email in their
+// clipboard" - a mailto: anchor opens the visitor's local mail client, which is exactly
+// the behavior the operator ruled out). Same phased-rollout discipline as DOUBLE_HYPHEN_RE
+// above: landed as a STRUCTURAL WARNING, not a hard-fail, because a fleet-wide blast-radius
+// scan (public/ + clients/*/dist, excluding public/mockups//public/m//public/demos/ which
+// are cached other-client/demo snapshots, not live client builds) found real mailto:
+// anchors still shipped on several own-site surfaces at add-time - promoting straight to
+// ERROR now would fail those existing pages before they are swept. WARN surfaces every
+// occurrence immediately; promotion to ERROR is a follow-up sweep, mirroring the
+// double-hyphen loophole's own WARN-first-then-promote sequencing. Scoped to `href=` only
+// (tel:/sms:/wa.me are explicitly out of scope, per the same operator directive - tap-to-
+// call/text stays correct mobile behavior) and checked against the RAW html, not the
+// tag-stripped extractVisibleText() text this function otherwise scans, since an anchor's
+// href attribute never survives that stripping pass.
+const MAILTO_HREF_RE = /href\s*=\s*["']mailto:/gi;
+
 export function findStructuralWarnings(html) {
   const text = extractVisibleText(html);
   const words = (text.match(/\b[\w']+\b/g) || []).length;
   const warn = [];
+
+  const mailtoHrefs = (html.match(MAILTO_HREF_RE) || []).length;
+  if (mailtoHrefs >= 1) {
+    warn.push(`${mailtoHrefs}x href="mailto:" anchor - replace with a click-to-copy control + on-page form (operator directive 2026-07-23: no mailto: links, tel:/sms:/wa.me stay)`);
+  }
 
   const doubleHyphen = (text.match(DOUBLE_HYPHEN_RE) || []).length;
   if (doubleHyphen >= 1) {
