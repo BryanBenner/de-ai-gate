@@ -63,6 +63,18 @@ test('findStructuralWarnings returns [] for varied human prose', () => {
     + 'could get back on the roof safely, we finished the flashing and cleaned up. Done.</p>';
   assert.deepEqual(findStructuralWarnings(varied), []);
 });
+test('findStructuralWarnings flags spaced double-hyphen standing in for an em dash', () => {
+  const warns = findStructuralWarnings('<p>The quote was fast -- reliable and honest.</p>');
+  assert.ok(warns.some(w => /double-hyphen/.test(w)));
+});
+test('findStructuralWarnings flags unspaced double-hyphen standing in for an em dash', () => {
+  const warns = findStructuralWarnings('<p>The crew fixed it--fast, before the storm.</p>');
+  assert.ok(warns.some(w => /double-hyphen/.test(w)));
+});
+test('findStructuralWarnings does NOT flag a real hyphenated compound or code fence', () => {
+  const warns = findStructuralWarnings('<p>The well-built deck used pressure-treated lumber.</p>');
+  assert.ok(!warns.some(w => /double-hyphen/.test(w)));
+});
 test('entity-encoded char tells decode before scanning (v1.0.4)', () => {
   assert.ok(findDeAiTells('<p>fast &mdash; reliable</p>').some(h => /em dash/.test(h.name)));
   assert.ok(findDeAiTells('<p>fast &#8212; reliable</p>').some(h => /em dash/.test(h.name)));

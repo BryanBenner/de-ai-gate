@@ -128,10 +128,28 @@ function stdev(nums) {
   return Math.sqrt(nums.reduce((a, b) => a + (b - m) ** 2, 0) / nums.length);
 }
 
+// Spaced (" -- ") or unspaced ("word--word") double-hyphen used as an em-dash stand-in.
+// Added 2026-07-23 (dispatch 2026-07-23T163600Z-001): the de-AI charTells/phraseTells
+// groups already flag literal em dash (U+2014) and en dash (U+2013), which pushed
+// authors to launder past the gate by typing "--" instead of writing an em dash - the
+// gate never saw the substitution because "--" isn't a tell. This closes that loophole.
+// Landed as a STRUCTURAL WARNING, not a charTells/phraseTells hard-fail: a fleet-wide
+// blast-radius scan this tick (grep across public/ + clients/*/dist) found ~41 already-
+// shipped pages on livingwebsites.ca's OWN site using this exact construction (mockups,
+// guides, insights, even the homepage) - promoting it straight to ERROR would newly-fail
+// a large slice of the live fleet with no rewrite done yet. WARN closes the loophole for
+// all NEW content immediately while staging the ERROR promotion as a follow-up sweep.
+const DOUBLE_HYPHEN_RE = /(\s-{2,}\s)|(\b\w+-{2,}\w+\b)/g;
+
 export function findStructuralWarnings(html) {
   const text = extractVisibleText(html);
   const words = (text.match(/\b[\w']+\b/g) || []).length;
   const warn = [];
+
+  const doubleHyphen = (text.match(DOUBLE_HYPHEN_RE) || []).length;
+  if (doubleHyphen >= 1) {
+    warn.push(`${doubleHyphen}x spaced/unspaced double-hyphen ("--") standing in for an em dash - rewrite the sentence, don't launder past the em-dash tell`);
+  }
 
   const notXbutY = (text.match(/\bnot (just |only |merely |simply )?[^,.;]{1,40}, but\b/gi) || []).length;
   const cap = Math.max(1, Math.floor(words / 400));

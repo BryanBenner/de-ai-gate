@@ -3,6 +3,11 @@
 All notable changes to de-ai-gate are documented here.
 Format follows Keep a Changelog; this project uses semantic versioning.
 
+## [1.0.6] - 2026-07-23
+### Added
+- `findStructuralWarnings` (JS engine) now flags spaced (`" -- "`) or unspaced (`"word--word"`) double-hyphen used as an em-dash stand-in. The existing charTells/phraseTells groups already catch a literal em dash (U+2014), which pushed authors to launder past the gate by typing `--` instead — the gate never saw the substitution because `--` isn't a tell. Landed as a STRUCTURAL WARNING (not a hard-fail): a fleet-wide blast-radius scan found ~41 already-shipped pages on the reporting deployment using this construction; promoting straight to ERROR would have newly-failed a large slice of a live fleet with no rewrite done yet.
+- Ported from field use (livingwebsites dispatch 2026-07-23T163600Z-001).
+
 ## [1.0.5] - 2026-07-11
 ### Fixed
 - Regression in 1.0.4 (field report: livingwebsites F598): decoding `&nbsp;`-class references to their true codepoints made the invisible-unicode tell false-positive on ordinary, legitimate pages (79 hits across ~40 clean pages in the reporting deployment). Invisible-class references (named `&nbsp;`/`&thinsp;`/`&shy;`/`&zwnj;`/... and their numeric forms) now decode to a plain space for tell-scanning: an explicit entity is a deliberate authoring choice, not the paste artifact the tell hunts. Reader-visible glyph references (dashes, ellipsis, smart quotes) keep true-codepoint decode. A LITERAL invisible character in raw text is untouched by decoding and still flags.
