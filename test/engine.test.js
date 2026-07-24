@@ -108,3 +108,28 @@ test('smart-quote apostrophes do not launder phrase tells (v1.0.4)', () => {
 test('double-escaped text ABOUT entities stays clean (v1.0.4)', () => {
   assert.deepEqual(findDeAiTells('<p>write &amp;mdash; to emit a dash entity</p>'), []);
 });
+
+// v1.0.8: insecure form-action structural WARN
+test('findStructuralWarnings flags a form with an inert action="#" and no JS fallback', () => {
+  const html = '<form class="lead-form" action="#" novalidate><input name="email"></form>';
+  assert.ok(findStructuralWarnings(html).some(w => /insecure form action/i.test(w)));
+});
+test('findStructuralWarnings passes a form with a real action="/api/lead" method="post"', () => {
+  const html = '<form class="lead-form" action="/api/lead" method="post" novalidate><input name="email"></form>';
+  assert.ok(!findStructuralWarnings(html).some(w => /insecure form action/i.test(w)));
+});
+test('findStructuralWarnings flags a form with no action and no method', () => {
+  const html = '<form class="lead-form" novalidate><input name="email"></form>';
+  assert.ok(findStructuralWarnings(html).some(w => /insecure form action/i.test(w)));
+});
+test('findStructuralWarnings flags a GET-only form even with an /api/ action', () => {
+  const html = '<form class="lead-form" action="/api/lead" method="get" novalidate><input name="email"></form>';
+  assert.ok(findStructuralWarnings(html).some(w => /insecure form action/i.test(w)));
+});
+test('findStructuralWarnings passes a no-action form whose submit is JS-secured to a real POST endpoint', () => {
+  const html = '<form id="leadform" class="leadform" novalidate><input name="email"></form>'
+    + '<script>(function(){var f=document.getElementById(\'leadform\');'
+    + 'f.addEventListener(\'submit\',async function(e){e.preventDefault();'
+    + "await fetch('/api/lead',{method:'POST',body:JSON.stringify({})});});})();</script>";
+  assert.ok(!findStructuralWarnings(html).some(w => /insecure form action/i.test(w)));
+});

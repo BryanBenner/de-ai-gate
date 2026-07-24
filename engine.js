@@ -158,6 +158,61 @@ const DOUBLE_HYPHEN_RE = /(\s-{2,}\s)|(\b\w+-{2,}\w+\b)/g;
 // href attribute never survives that stripping pass.
 const MAILTO_HREF_RE = /href\s*=\s*["']mailto:/gi;
 
+// Insecure `<form>` action, WARN-level. Ports the spirit of
+// test/demo-safety.test.js's local `formPostsToApiLead` helper into the
+// canonical engine so the check applies gate-wide (every served page this
+// engine scans), not only the demo fleet that local helper covered. A form is
+// judged "secured" one of two ways:
+//   (1) its OWN action/method attributes are a real POST endpoint --
+//       action="/api/..." (or any absolute-path action, not "#"/empty/
+//       "javascript:...") AND method="post"; or
+//   (2) the page has no literal action wired at all, but an inline <script>
+//       on the SAME page intercepts that submit (`.preventDefault(`) and
+//       fetches a real POST endpoint (`fetch(...)` with `method` "POST" and a
+//       "/api/..." URL) -- the exact live pattern on livingwebsites.ca's own
+//       homepage `#leadform` and `/get-started/` forms today (verified before
+//       writing this rule: public/index.html's form carries no `action`
+//       attribute at all and is secured entirely by its paired submit-handler
+//       script). A literal action-attribute-only port of the demo-safety
+//       helper would have false-positived that real, already-secure form --
+//       this widened definition is a deliberate, verified correction, not a
+//       loophole (a page with NEITHER a secured action NOR any fetch-to-POST
+//       script anywhere on it still warns).
+// Landed WARN-tier, same phased-rollout discipline as MAILTO_HREF_RE and
+// DOUBLE_HYPHEN_RE above (both started WARN, promoted to ERROR once the fleet
+// was swept clean) -- this rule is brand-new gate-wide and its own-site blast
+// radius has not been fully swept, so a hard-fail here risks the exact
+// false-positive-noise-gets-ignored failure mode those two comments warn
+// about. Scoped to a form's OPENING TAG for the action/method read (checked
+// against the raw html, mirroring MAILTO_HREF_RE's href-attribute rationale --
+// extractVisibleText()'s tag-stripping pass would destroy the attribute), and
+// to the whole raw html for the JS-fallback scan.
+const FORM_TAG_RE = /<form\b[^>]*>/gi;
+const REAL_POST_ACTION_RE = /^\/[\w\-./]*$/; // absolute path, not "#"/empty/javascript:
+const JS_SECURED_SUBMIT_RE = /preventDefault\s*\(\s*\)[\s\S]{0,400}?fetch\s*\(\s*['"][^'"]*\/api\/[\w-]+['"][\s\S]{0,200}?method\s*:\s*['"]POST['"]/i;
+
+function attr(tag, name) {
+  const m = tag.match(new RegExp(`\\b${name}\\s*=\\s*["']([^"']*)["']`, 'i'));
+  return m ? m[1] : null;
+}
+
+export function findInsecureFormActions(html) {
+  const forms = html.match(FORM_TAG_RE) || [];
+  if (forms.length === 0) return [];
+  const jsSecured = JS_SECURED_SUBMIT_RE.test(html);
+  const bad = [];
+  for (const tag of forms) {
+    const action = attr(tag, 'action');
+    const method = (attr(tag, 'method') || '').toLowerCase();
+    const hasRealAction = action !== null && REAL_POST_ACTION_RE.test(action) && action !== '#';
+    const declaredSecure = hasRealAction && method === 'post';
+    if (declaredSecure) continue;
+    if (action === null && jsSecured) continue; // no literal action, but page-wide JS secures the submit
+    bad.push(tag.length > 120 ? tag.slice(0, 120) + '...' : tag);
+  }
+  return bad;
+}
+
 export function findStructuralWarnings(html) {
   const text = extractVisibleText(html);
   const words = (text.match(/\b[\w']+\b/g) || []).length;
@@ -166,6 +221,11 @@ export function findStructuralWarnings(html) {
   const mailtoHrefs = (html.match(MAILTO_HREF_RE) || []).length;
   if (mailtoHrefs >= 1) {
     warn.push(`${mailtoHrefs}x href="mailto:" anchor - replace with a click-to-copy control + on-page form (operator directive 2026-07-23: no mailto: links, tel:/sms:/wa.me stay)`);
+  }
+
+  const insecureForms = findInsecureFormActions(html);
+  if (insecureForms.length >= 1) {
+    warn.push(`${insecureForms.length}x insecure form action - form must POST to a real endpoint (e.g. action="/api/lead" method="post") or have its submit JS-secured to one; found: ${insecureForms.join(' | ')}`);
   }
 
   const doubleHyphen = (text.match(DOUBLE_HYPHEN_RE) || []).length;

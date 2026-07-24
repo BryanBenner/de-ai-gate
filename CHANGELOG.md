@@ -3,6 +3,10 @@
 All notable changes to de-ai-gate are documented here.
 Format follows Keep a Changelog; this project uses semantic versioning.
 
+## [1.0.8] - 2026-07-24
+### Added
+- `findStructuralWarnings` (JS engine) now also flags an insecure `<form>` action (WARN-tier): a form whose `action`/`method` don't declare a real POST endpoint (missing action, `action="#"`, or a GET-only/no-method form) is flagged UNLESS the same page's own inline script intercepts that submit (`preventDefault()`) and fetches a real `/api/...` endpoint with `method: "POST"` — the JS-secured escape hatch matters because it is the live, already-secure pattern real sites use (verified against a real production homepage form before writing the rule; a literal `action`-attribute-only port would have false-positived it). Ports the spirit of a local demo-safety-scoped `formPostsToApiLead` helper into the canonical, gate-wide engine. Ported from field use (livingwebsites dispatch 2026-07-24T022741Z-001).
+
 ## [1.0.7] - 2026-07-23
 ### Added
 - `findStructuralWarnings` (JS engine) now also flags any `href="mailto:"` anchor (WARN-tier), checked against the raw HTML rather than the tag-stripped visible-text pass, since an anchor's `href` attribute never survives that stripping. Scoped to `href=` only — `tel:`/`sms:`/`wa.me` anchors are explicitly out of scope (tap-to-call/text is desired mobile behavior, not a tell). Ported from field use (livingwebsites dispatch 2026-07-23T171400Z-001, operator directive: mailto anchors open the visitor's local mail client, which nobody wants in 2026 — a form or a click-to-copy control is the honest alternative).
