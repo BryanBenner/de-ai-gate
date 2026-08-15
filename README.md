@@ -8,6 +8,11 @@ and lexical tells of machine-generated prose **before it ships** - em-dashes, cu
 quotes, invisible unicode, and high-precision AI phrase tells - with a hard pass/fail
 exit code. Deterministic regex, no network, no credentials.
 
+Sister gate to [no-fabricate-gate](https://github.com/BryanBenner/no-fabricate-gate):
+de-ai-gate catches machine-generated *style*; no-fabricate-gate catches
+machine-generated *facts*. Together they are an honesty suite for content that
+ships from an AI pipeline.
+
 ## Install & run (10 seconds)
 
 ```bash
