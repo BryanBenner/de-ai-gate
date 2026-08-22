@@ -3,6 +3,12 @@
 All notable changes to de-ai-gate are documented here.
 Format follows Keep a Changelog; this project uses semantic versioning.
 
+## [1.0.9] - 2026-08-22
+### Fixed
+- Bare `seamless` HARD phrase tell false-positived on real gutter-guard/eavestrough businesses' correct product-category term ("seamless gutters" / "seamless eavestrough"). Narrowed to a phrase-pattern: still hard-fails every marketing-filler collocation ("seamless experience/integration/workflow", bare "seamless"), spared only when immediately followed by gutter(s)/eavestrough(s)/trough(s) — an exclusion, not a positive allowlist, so any future uncatalogued filler noun still hard-fails. Ported from field use (livingwebsites, 2 real prospects blocked at the voice stage, 2/2 repeatable; queen dispatch 2026-07-29T223500Z-001, reply to F912's full-pool sweep).
+### Added
+- Regression fixtures both directions in `test/engine.test.js`.
+
 ## [1.0.8] - 2026-07-24
 ### Added
 - `findStructuralWarnings` (JS engine) now also flags an insecure `<form>` action (WARN-tier): a form whose `action`/`method` don't declare a real POST endpoint (missing action, `action="#"`, or a GET-only/no-method form) is flagged UNLESS the same page's own inline script intercepts that submit (`preventDefault()`) and fetches a real `/api/...` endpoint with `method: "POST"` — the JS-secured escape hatch matters because it is the live, already-secure pattern real sites use (verified against a real production homepage form before writing the rule; a literal `action`-attribute-only port would have false-positived it). Ports the spirit of a local demo-safety-scoped `formPostsToApiLead` helper into the canonical, gate-wide engine. Ported from field use (livingwebsites dispatch 2026-07-24T022741Z-001).
