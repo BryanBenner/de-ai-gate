@@ -30,6 +30,22 @@ test('findDeAiTells still HARD-flags elevate / seamless as bare filler (v1.0.1)'
   assert.ok(findDeAiTells('<p>A seamless experience.</p>').some(h => /elevate . seamless/.test(h.name)));
 });
 
+test('findDeAiTells: "seamless" narrowed to a phrase-pattern (v1.0.5) -- still HARD-flags every filler collocation', () => {
+  assert.ok(findDeAiTells('<p>A seamless experience awaits.</p>').some(h => /elevate . seamless/.test(h.name)));
+  assert.ok(findDeAiTells('<p>Enjoy seamless integration today.</p>').some(h => /elevate . seamless/.test(h.name)));
+  // uncatalogued filler noun -- proves this is an EXCLUSION of the real trade
+  // term below, not a positive allowlist of known filler nouns.
+  assert.ok(findDeAiTells('<p>We deliver a seamless workflow.</p>').some(h => /elevate . seamless/.test(h.name)));
+  assert.ok(findDeAiTells('<p>Our process is seamless.</p>').some(h => /elevate . seamless/.test(h.name)));
+});
+
+test('findDeAiTells: "seamless gutters"/"seamless eavestrough" (real gutter-guard/eavestrough product-category term) passes clean (v1.0.5)', () => {
+  assert.deepEqual(findDeAiTells('<p>We install seamless gutters built to last.</p>'), []);
+  assert.deepEqual(findDeAiTells('<p>Our seamless eavestrough sheds water fast.</p>'), []);
+  assert.deepEqual(findDeAiTells('<p>Ask about seamless eavestroughs and gutter guards.</p>'), []);
+  assert.deepEqual(findDeAiTells('<p>We install seamless troughs across the region.</p>'), []);
+});
+
 test('scannable drops CSS but keeps inline script string copy', () => {
   const s = scannable('<style>a{color:red}</style><script>const t="Delve here"</script>');
   assert.equal(/color:red/.test(s), false);
