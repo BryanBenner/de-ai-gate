@@ -3,6 +3,14 @@
 All notable changes to de-ai-gate are documented here.
 Format follows Keep a Changelog; this project uses semantic versioning.
 
+## [1.0.10] - 2026-08-23
+### Fixed
+- `findStructuralWarnings`' `notXbutY` density counter (WARN-tier, cap 1/400 words) required a comma before "but", so the plain, natural-reading antithesis ("a new roof is not an expense but an investment") escaped it entirely — only the more-intensified, comma'd reframe was counted. The comma is now optional; tier is unchanged (WARN/density, not hard-fail). The existing HARD phraseTell "not just X, it's/but Y reframe" (intensifier + comma/em-dash/semicolon required) is deliberately untouched — it stays the aggressive, intensified form.
+### Added
+- `deep dive` and `maximise`/`maximize` added to the watchlist (cluster-WARN only, never HARD) — both are named as overused AI-writing terms by a 2026-07-30 Economist corpus study (55,940 sentences, its own journalism vs. the same pieces rewritten by ChatGPT/Claude/Gemini/Grok); `delve`/`tapestry` from the same list are already HARD tells here. `deep dive` is the comma-less sibling of the existing HARD `let's dive in`. Watchlist tier (not HARD) is deliberate: "maximize attic ventilation" is legitimate functional trades copy, so it only warns when it clusters with a second watchlist word in the same paragraph — same reasoning as `unlock`/`seamless`.
+- Regression fixtures for every fix above (comma-less and comma'd forms, both watchlist words alone-clean and clustered-WARN, the unaffected HARD control) in `test/engine.test.js`.
+- Sourced from a queen-dispatched research pass (`meris-mycelium`, gate-research 2026-08-23T073533Z, Findings 1+2). A corpus regression scan of all 228 of livingwebsites.ca's own shipped `public/**/index.html` pages found zero new HARD hits and zero new-relevant WARN hits from either change — no existing shipped copy newly lights up.
+
 ## [1.0.9] - 2026-08-22
 ### Fixed
 - Bare `seamless` HARD phrase tell false-positived on real gutter-guard/eavestrough businesses' correct product-category term ("seamless gutters" / "seamless eavestrough"). Narrowed to a phrase-pattern: still hard-fails every marketing-filler collocation ("seamless experience/integration/workflow", bare "seamless"), spared only when immediately followed by gutter(s)/eavestrough(s)/trough(s) — an exclusion, not a positive allowlist, so any future uncatalogued filler noun still hard-fails. Ported from field use (livingwebsites, 2 real prospects blocked at the voice stage, 2/2 repeatable; queen dispatch 2026-07-29T223500Z-001, reply to F912's full-pool sweep).

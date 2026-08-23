@@ -233,7 +233,13 @@ export function findStructuralWarnings(html) {
     warn.push(`${doubleHyphen}x spaced/unspaced double-hyphen ("--") standing in for an em dash - rewrite the sentence, don't launder past the em-dash tell`);
   }
 
-  const notXbutY = (text.match(/\bnot (just |only |merely |simply )?[^,.;]{1,40}, but\b/gi) || []).length;
+  // v1.0.10 (mycelium gate-research 2026-08-23T073533Z, Finding 1): comma was
+  // mandatory before "but", so the plain, natural-reading antithesis ("a new
+  // roof is not an expense but an investment") escaped this counter entirely
+  // -- only the comma'd, more-intensified reframe (already also caught by the
+  // separate HARD phraseTell above when paired with just/only/merely) was
+  // ever counted. Comma is now optional; the intensifier stays optional too.
+  const notXbutY = (text.match(/\bnot (just |only |merely |simply )?[^,.;]{1,40},?\s*but\b/gi) || []).length;
   const cap = Math.max(1, Math.floor(words / 400));
   if (notXbutY > cap) warn.push(`${notXbutY}x "not-X-but-Y" antithesis (cap ${cap} @ 1/400w)`);
 

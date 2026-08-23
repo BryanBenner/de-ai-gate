@@ -149,3 +149,47 @@ test('findStructuralWarnings passes a no-action form whose submit is JS-secured 
     + "await fetch('/api/lead',{method:'POST',body:JSON.stringify({})});});})();</script>";
   assert.ok(!findStructuralWarnings(html).some(w => /insecure form action/i.test(w)));
 });
+
+// v1.0.10 (mycelium gate-research 2026-08-23T073533Z, Finding 1): the notXbutY
+// density counter required a comma before "but", so the plain, comma-less
+// antithesis ("not an expense but an investment") escaped it entirely. Fixed
+// by making the comma optional. Two occurrences are used in each fixture
+// below because the density cap is max(1, floor(words/400)) -- a single hit
+// in a short fixture never exceeds a cap of 1.
+test('findStructuralWarnings counts the comma-less "not X but Y" antithesis (v1.0.10)', () => {
+  const html = '<p>A new roof is not an expense but an investment in your home. '
+    + 'This is not a repair job but a full restoration of the envelope.</p>';
+  assert.ok(findStructuralWarnings(html).some(w => /not-X-but-Y/.test(w)));
+});
+test('findStructuralWarnings counts the comma-less "not only ... but also" form (v1.0.10)', () => {
+  const html = '<p>Not only does new siding protect your walls but also your foundation. '
+    + 'Not only does it look sharp but also it lasts for decades.</p>';
+  assert.ok(findStructuralWarnings(html).some(w => /not-X-but-Y/.test(w)));
+});
+test('findStructuralWarnings still counts the comma\'d "not X but Y" form (regression, v1.0.10)', () => {
+  const html = '<p>A new roof is not an expense, but an investment in your home. '
+    + 'Not only does new siding protect your walls, but also your foundation.</p>';
+  assert.ok(findStructuralWarnings(html).some(w => /not-X-but-Y/.test(w)));
+});
+test('findDeAiTells still HARD-flags the intensified "not just X, but Y" reframe (unaffected control, v1.0.10)', () => {
+  const hits = findDeAiTells('<p>This is not just a repair, but a full restoration.</p>');
+  assert.ok(hits.some(h => /not just X/.test(h.name)));
+});
+
+// v1.0.10 (mycelium gate-research 2026-08-23T073533Z, Finding 2): "deep dive"
+// and "maximise"/"maximize" are watchlist-tier (cluster-WARN only, never a
+// hard fail) -- same tier as leverage/robust/seamless, because "maximize
+// attic ventilation" is legitimate functional trades copy.
+test('findDeAiTells does NOT hard-fail "deep dive" or "maximise"/"maximize" alone (v1.0.10)', () => {
+  assert.deepEqual(findDeAiTells('<p>Take a deep dive into our process.</p>'), []);
+  assert.deepEqual(findDeAiTells('<p>We maximise the value of every square foot.</p>'), []);
+  assert.deepEqual(findDeAiTells('<p>Maximize attic ventilation before winter hits.</p>'), []);
+});
+test('findStructuralWarnings clusters "deep dive" with another watchlist word in one paragraph (v1.0.10)', () => {
+  const html = '<p>Take a deep dive into our process and let it foster real trust.</p>';
+  assert.ok(findStructuralWarnings(html).some(w => /watchlist cluster/.test(w) && /deep dive/.test(w)));
+});
+test('findStructuralWarnings clusters "maximise" with another watchlist word in one paragraph (v1.0.10)', () => {
+  const html = '<p>We maximise value while we bolster your curb appeal.</p>';
+  assert.ok(findStructuralWarnings(html).some(w => /watchlist cluster/.test(w) && /maximise/.test(w)));
+});
