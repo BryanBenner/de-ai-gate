@@ -52,6 +52,21 @@ test('scannable drops CSS but keeps inline script string copy', () => {
   assert.equal(/Delve here/.test(s), true);
 });
 
+test('findDeAiTells is not blinded by a protocol-relative URL (F1019, v1.0.11)', () => {
+  const html = '<html><head><script src="//cdn.jsdelivr.net/a.js"></script></head><body>' +
+    '<p>In today\'s fast-paced world.</p><p>It is important to note that we deliver.</p></body></html>';
+  const withProtocolRelative = findDeAiTells(html);
+  const withHttps = findDeAiTells(html.replace('//cdn.jsdelivr.net/a.js', 'https://cdn.jsdelivr.net/a.js'));
+  assert.equal(withProtocolRelative.length, 2);
+  assert.deepEqual(withProtocolRelative.map(h => h.name).sort(), withHttps.map(h => h.name).sort());
+});
+
+test('scannable still strips a real JS line comment inside a <script> body', () => {
+  const s = scannable('<script>// a real comment\nconst t="Delve here"</script>');
+  assert.equal(/a real comment/.test(s), false);
+  assert.equal(/Delve here/.test(s), true);
+});
+
 test('findDeAiTells does NOT flag a clean human paragraph', () => {
   assert.deepEqual(findDeAiTells('<p>We fixed the roof in two days. Call us.</p>'), []);
 });

@@ -17,11 +17,19 @@ _CHAR = _compile("charTells")
 _PHRASE = _compile("phraseTells")
 _RECORD = _compile("recordCorruption")
 
+# JS comment-stripping scoped to <script> BODIES ONLY (F1019 fix, 2026-09-10) --
+# mirrors engine.js: a document-wide "//" strip deleted from any protocol-relative
+# URL to end-of-line, blanking whole minified pages and returning a silent [].
+def _strip_script_comments(m: "re.Match") -> str:
+    attrs, body = m.group(1), m.group(2)
+    body = re.sub(r"/\*[\s\S]*?\*/", " ", body)
+    body = re.sub(r"(^|[^:])//[^\n]*", r"\1", body)
+    return f"<script{attrs}>{body}</script>"
+
 def _scannable(html: str) -> str:
     s = re.sub(r"<style[\s\S]*?</style>", " ", html, flags=re.I)
     s = re.sub(r"<!--[\s\S]*?-->", " ", s)
-    s = re.sub(r"/\*[\s\S]*?\*/", " ", s)
-    s = re.sub(r"(^|[^:])//[^\n]*", r"\1", s)
+    s = re.sub(r"<script\b([^>]*)>([\s\S]*?)</script>", _strip_script_comments, s, flags=re.I)
     return s
 
 # Mirror of engine.js NAMED_REFS/decodeCharRefs (v1.0.5 semantics): visible glyph
@@ -70,9 +78,10 @@ def find_record_corruption(source: str):
                 hits.append({"name": name, "line": i, "sample": line.strip()[:90]})
     return hits
 
-def _walk(path, exts):
+def _walk(path, exts, missing: list):
     p = pathlib.Path(path)
     if not p.exists():
+        missing.append(str(p))
         return []
     if p.is_file():
         return [str(p)] if p.suffix in exts else []
@@ -87,12 +96,13 @@ def _main(argv):
         elif a.startswith("--"): mode = None
         elif mode == "html" or mode is None: html_paths.append(a)
         elif mode == "records": record_paths.append(a)
+    missing = []
     html_files = []
     for p in html_paths:
-        html_files.extend(_walk(p, {".html"}))
+        html_files.extend(_walk(p, {".html"}, missing))
     record_files = []
     for p in record_paths:
-        record_files.extend(_walk(p, {".js", ".mjs", ".json", ".ts"}))
+        record_files.extend(_walk(p, {".js", ".mjs", ".json", ".ts"}, missing))
     hard = 0
     for f in html_files:
         for h in find_de_ai_tells(pathlib.Path(f).read_text(encoding="utf-8")):
@@ -100,7 +110,11 @@ def _main(argv):
     for f in record_files:
         for h in find_record_corruption(pathlib.Path(f).read_text(encoding="utf-8")):
             print(f'x {f}:{h["line"]} {h["name"]} | {h["sample"]}'); hard += 1
-    print(f"-- de-AI gate (py) -- {hard} HARD violations")
+    for m in missing:
+        print(f"! path does not exist: {m}")
+    print(f"-- de-AI gate (py) -- {len(html_files)} html + {len(record_files)} record files | {hard} HARD violations")
+    if missing and not html_files and not record_files:
+        return 2
     return 1 if (hard and not warn_only) else 0
 
 if __name__ == "__main__":

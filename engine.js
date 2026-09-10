@@ -19,12 +19,23 @@ const CATALOG = loadCatalog();
 
 // Reduce HTML to served, user-visible copy: drop CSS + comments, KEEP tags/text/
 // attributes and inline <script> string literals (CTA labels are served copy).
+// JS comment-stripping is scoped to <script> BODIES ONLY (F1019 fix, 2026-09-10):
+// a document-wide `//` strip deleted from any protocol-relative URL
+// (href="//cdn...", srcset, etc.) to end-of-line, and on minified single-line
+// HTML that blanked the entire document — findDeAiTells() then returned []
+// (identical to a genuinely clean page), silently. The comment strip's actual
+// job is JS line/block comments inside inline <script> tags; scoping it there
+// removes the false match surface entirely instead of patching the regex.
 export function scannable(html) {
   let s = html;
   s = s.replace(/<style[\s\S]*?<\/style>/gi, ' ');
   s = s.replace(/<!--[\s\S]*?-->/g, ' ');
-  s = s.replace(/\/\*[\s\S]*?\*\//g, ' ');
-  s = s.replace(/(^|[^:])\/\/[^\n]*/g, '$1');
+  s = s.replace(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi, (m, attrs, body) => {
+    const stripped = body
+      .replace(/\/\*[\s\S]*?\*\//g, ' ')
+      .replace(/(^|[^:])\/\/[^\n]*/g, '$1');
+    return `<script${attrs}>${stripped}</script>`;
+  });
   return s;
 }
 

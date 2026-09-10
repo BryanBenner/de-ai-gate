@@ -18,10 +18,17 @@ function collectFlag(flag, exts) {
   }
   return out;
 }
+// missing/unreadable paths are collected (not silently swallowed) so a typo'd
+// or renamed target reports zero files honestly instead of reading as a clean
+// pass (F1019, 2026-09-10).
+const missingPaths = [];
+const unreadableDirs = [];
 function walk(p, exts, acc = []) {
-  if (!existsSync(p)) return acc;
+  if (!existsSync(p)) { missingPaths.push(p); return acc; }
   if (statSync(p).isFile()) { if (exts.some(e => p.endsWith(e))) acc.push(p); return acc; }
-  let entries; try { entries = readdirSync(p, { withFileTypes: true }); } catch { return acc; }
+  let entries;
+  try { entries = readdirSync(p, { withFileTypes: true }); }
+  catch (e) { unreadableDirs.push({ path: p, code: e.code }); return acc; }
   for (const e of entries) walk(join(p, e.name), exts, acc);
   return acc;
 }
@@ -52,6 +59,13 @@ for (const f of recordTargets) {
   hardTotal += hits.length;
 }
 
+for (const m of missingPaths) console.log(`! path does not exist: ${m}`);
+for (const u of unreadableDirs) console.log(`! unreadable: ${u.path} (${u.code})`);
+
 console.log(`\n-- de-AI gate -- ${htmlTargets.length} html + ${recordTargets.length} record files | ${hardTotal} HARD violations`);
+if ((missingPaths.length || unreadableDirs.length) && htmlTargets.length === 0 && recordTargets.length === 0) {
+  console.log('ABORT - no files resolved (see missing/unreadable paths above).\n');
+  process.exit(2);
+}
 if (hardTotal && !warnOnly) { console.log('BLOCKED - fix HARD violations before shipping.\n'); process.exit(1); }
 console.log(warnOnly ? 'warn-only: not blocking.\n' : 'de-AI gate passed (no HARD violations).\n');

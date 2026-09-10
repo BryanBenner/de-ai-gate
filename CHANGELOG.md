@@ -3,6 +3,15 @@
 All notable changes to de-ai-gate are documented here.
 Format follows Keep a Changelog; this project uses semantic versioning.
 
+## [1.0.11] - 2026-09-10
+### Fixed
+- **`scannable()`'s document-wide `//` comment strip silently blanked served copy containing a protocol-relative URL** (`<script src="//cdn...">`, `<img src="//...">`, `srcset`, etc.) — the `[^:]` guard protected `https://` but nothing else, so everything from the `//` to end-of-line was deleted and never scanned. On minified single-line HTML this blanked the **entire document**: a page carrying two HARD tells returned `findDeAiTells() -> []`, byte-identical to a genuinely clean page, with the identical regex present in the Python shim so gate parity did not catch it. Fixed by scoping the `//` and `/* */` comment strip to `<script>` tag BODIES ONLY — its actual and only legitimate job — instead of running it over the whole document. Same fix applied to both `engine.js` and `gate.py` so parity is preserved.
+- **`gate.py` reported `0 HARD violations` and exited 0 on a path that does not exist**, with no file count ever printed — a typo'd or renamed scan target went green forever. `_walk()` now records missing paths; `_main()` prints them, reports `N html + N record files` in its summary line (matching the JS CLI), and exits 2 if the missing path resolved zero files.
+- **`cli.mjs`'s `walk()` silently swallowed an unreadable directory** (`catch { return acc; }`) — a permission error or a Windows path-too-long error under a scan root contributed zero files with no signal. Now reports each missing path and unreadable directory by name/error-code, and aborts (exit 2) if zero files resolved at all.
+- Found by a mycelium fleet-wide "does any gate treat unparseable input as a pass" sweep (2026-09-10, queen dispatch reply_to F2369/lw's `rebuild-a11y-scan.mjs` oklab-color silent-skip finding) — the general failure class: a gate that skips an unparseable input without counting or reporting it produces output byte-identical to a clean pass.
+### Added
+- Regression coverage for the protocol-relative-URL case in `test/engine.test.js` and `test/test_gate_parity.py`.
+
 ## [1.0.10] - 2026-08-23
 ### Fixed
 - `findStructuralWarnings`' `notXbutY` density counter (WARN-tier, cap 1/400 words) required a comma before "but", so the plain, natural-reading antithesis ("a new roof is not an expense but an investment") escaped it entirely — only the more-intensified, comma'd reframe was counted. The comma is now optional; tier is unchanged (WARN/density, not hard-fail). The existing HARD phraseTell "not just X, it's/but Y reframe" (intensifier + comma/em-dash/semicolon required) is deliberately untouched — it stays the aggressive, intensified form.

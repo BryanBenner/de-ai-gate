@@ -50,6 +50,21 @@ def test_rich_ascii_multitell_parity():
         "  JS: " + str(js_names) + "\n  PY: " + str(py_names)
     )
 
+def test_protocol_relative_url_no_longer_blinds_the_scan(): # F1019, v1.0.11
+    # A protocol-relative URL used to be indistinguishable from a JS line
+    # comment to the document-wide "//" stripper, deleting the rest of the
+    # line -- on minified single-line HTML this blanked the whole document.
+    # Both engines must find both tells with the src present.
+    sample = (
+        '<html><head><script src="//cdn.jsdelivr.net/a.js"></script></head><body>'
+        "<p>In today's fast-paced world.</p><p>It is important to note that we deliver.</p>"
+        "</body></html>"
+    )
+    js_names = _js_tell_names(sample)
+    py_names = sorted(h["name"] for h in gate.find_de_ai_tells(sample))
+    assert len(js_names) == 2, "parity sample should hit 2 tells; got: " + str(js_names)
+    assert js_names == py_names
+
 def test_known_nonascii_boundary_divergence_is_documented():
     # KNOWN LIMITATION: JS \b is ASCII-only; Python \b is Unicode-aware.
     # When a non-ASCII letter (e.g. U+00E9 e-acute) is directly adjacent
