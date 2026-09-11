@@ -112,3 +112,17 @@ def test_nbsp_entity_clean_literal_flags_v105():
     # invisible-unicode tell on legitimate pages. Entities are deliberate; literals flag.
     assert gate.find_de_ai_tells("<p>a&nbsp;b and c&#160;d</p>") == []
     assert any("invisible" in h["name"] for h in gate.find_de_ai_tells("<p>a b</p>"))
+
+
+def test_openai_blocklist_hard_tells_parity_v107():
+    # v1.0.7 catalog (mycelium gate-research Day 20, F1020 s.4, queen dispatch
+    # 2026-09-11T123500Z-1103): the two new HARD phraseTells sourced from
+    # OpenAI's own GPT-6 Astra model-guidance blocklist must agree between
+    # engines exactly like every other catalog-driven tell.
+    sample = "<p>Bottom Line: this isn't about price. It's about value.</p>"
+    js_names = _js_tell_names(sample)
+    assert js_names, "parity sample produced zero JS hits -- test would be vacuous"
+    py_names = sorted(h["name"] for h in gate.find_de_ai_tells(sample))
+    assert js_names == py_names
+    assert any("Bottom Line" in n for n in py_names)
+    assert any("isn't about" in n for n in py_names)

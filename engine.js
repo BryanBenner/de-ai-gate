@@ -254,6 +254,22 @@ export function findStructuralWarnings(html) {
   const cap = Math.max(1, Math.floor(words / 400));
   if (notXbutY > cap) warn.push(`${notXbutY}x "not-X-but-Y" antithesis (cap ${cap} @ 1/400w)`);
 
+  // OpenAI GPT-6 Astra model-guidance blocklist (2026-09-05, mycelium gate-
+  // research Day 20, F1020 s.4, queen dispatch 2026-09-11T123500Z-1103):
+  // the plain contrastive "X, not Y" form was BUILT and canary-tested as a
+  // WARN/density counter (same shape as notXbutY above) but DECLINED after
+  // the test: a live scan of livingwebsites.ca's own 258 shipped, gate-
+  // passed pages found 89 (34%) exceeded the density cap, many by a wide
+  // margin (e.g. 14 hits against a cap of 3) -- this is the fleet's own
+  // ordinary rhetorical voice ("quality, not quantity"-style short
+  // parallels), not an AI-specific tell in this corpus, and shipping it
+  // would be exactly the false-positive-noise-gets-ignored failure mode the
+  // mailto/double-hyphen WARN-first precedent above exists to avoid. See
+  // catalog.json's _source note and the dispatch's own results file for the
+  // full canary evidence. Not implemented; revisit only with a materially
+  // tighter pattern (e.g. requiring a second contrastive clause nearby) if a
+  // future field report shows a real false-negative gap.
+
   const tricolon = (text.match(/\b\w+, \w+,? and \w+\b/gi) || []).length;
   if (tricolon >= 2) warn.push(`${tricolon}x triplet/tricolon list - vary with pairs and fours`);
 

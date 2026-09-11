@@ -208,3 +208,57 @@ test('findStructuralWarnings clusters "maximise" with another watchlist word in 
   const html = '<p>We maximise value while we bolster your curb appeal.</p>';
   assert.ok(findStructuralWarnings(html).some(w => /watchlist cluster/.test(w) && /maximise/.test(w)));
 });
+
+// v1.0.7 catalog (mycelium gate-research day 20, F1020 s.4, queen dispatch
+// 2026-09-11T123500Z-1103): OpenAI's own GPT-6 Astra model-guidance page
+// (fetched 2026-09-05/2026-09-11) publishes its own model's stock-phrase
+// blocklist. "Bottom Line:" and "In short:" as colon-anchored summary openers
+// are the same class as the already-HARD "in conclusion/in summary" tell but
+// were not covered by its exact-phrase match. Colon-anchored (not bare "in
+// short" mid-sentence, which is common legitimate connective phrasing) to
+// keep the false-positive surface tight.
+test('findDeAiTells HARD-flags "Bottom Line:" and "In short:" as colon-anchored summary openers (v1.0.7)', () => {
+  assert.ok(findDeAiTells('<p>Bottom Line: replace your gutters before fall.</p>').some(h => /Bottom Line/.test(h.name)));
+  assert.ok(findDeAiTells('<p>In short: book the inspection now.</p>').some(h => /Bottom Line/.test(h.name)));
+});
+test('findDeAiTells does NOT flag "in short" without the colon (functional connective, v1.0.7)', () => {
+  assert.deepEqual(findDeAiTells('<p>In short supply this season, gutter guards sell out fast.</p>'), []);
+});
+
+// The two-sentence "This isn't about X. It's about Y." structural reframe --
+// OpenAI's own worked example of a stock rhetorical pattern. Distinct from the
+// existing single-clause "not just X, it's/but Y" HARD tell (no intensifier,
+// no comma/dash joining the clauses -- two full sentences).
+test('findDeAiTells HARD-flags the two-sentence "This isn\'t about X. It\'s about Y." reframe (v1.0.7)', () => {
+  const hits = findDeAiTells("<p>This isn't about price. It's about value.</p>");
+  assert.ok(hits.some(h => /isn.t about/.test(h.name)));
+});
+test('findDeAiTells does NOT flag a lone "isn\'t about" sentence without the paired "it\'s about" (v1.0.7)', () => {
+  assert.deepEqual(findDeAiTells("<p>This isn't about price at all.</p>"), []);
+});
+
+// Bare "importantly" and "genuinely" -- OpenAI names both as slop words, but
+// both are common, legitimate adverbs in real trades/marketing copy
+// ("genuinely useful", "importantly, check the warranty first"). Same
+// reasoning as unlock/seamless/maximize: watchlist tier, cluster-WARN only,
+// never a bare-word HARD fail.
+test('findDeAiTells does NOT hard-fail bare "importantly" or "genuinely" (v1.0.7)', () => {
+  assert.deepEqual(findDeAiTells('<p>Importantly, check the warranty before you sign.</p>'), []);
+  assert.deepEqual(findDeAiTells('<p>This is a genuinely useful guide.</p>'), []);
+});
+test('findStructuralWarnings clusters "importantly" with another watchlist word in one paragraph (v1.0.7)', () => {
+  const html = '<p>Importantly, this will bolster your home value.</p>';
+  assert.ok(findStructuralWarnings(html).some(w => /watchlist cluster/.test(w) && /importantly/.test(w)));
+});
+test('findStructuralWarnings clusters "genuinely" with another watchlist word in one paragraph (v1.0.7)', () => {
+  const html = '<p>This genuinely will foster trust with your neighbors.</p>';
+  assert.ok(findStructuralWarnings(html).some(w => /watchlist cluster/.test(w) && /genuinely/.test(w)));
+});
+
+// Plain contrastive "X, not Y" framing (OpenAI's own example form) was BUILT
+// as a WARN/density structural counter (same shape as notXbutY) and then
+// DECLINED after a canary run against livingwebsites.ca's own 258 shipped
+// pages found 89 (34%) exceeding the density cap -- ordinary site voice, not
+// an AI-specific tell in this corpus. See engine.js's findStructuralWarnings
+// comment and catalog.json's _source note for the full reasoning. No test
+// here: there is no shipped behavior to assert.
