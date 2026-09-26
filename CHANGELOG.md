@@ -3,6 +3,13 @@
 All notable changes to de-ai-gate are documented here.
 Format follows Keep a Changelog; this project uses semantic versioning.
 
+## [1.0.13] / catalog [1.0.8] - 2026-09-26
+### Added
+- New HARD phraseTell: `The simplest mental model is:` (also `easiest`, optional `here`), a stock explainer opener named on the same OpenAI GPT-6 Astra blocklist as catalog 1.0.7 and missed in that pass. Colon-anchored like `Bottom Line:`, so prose that merely mentions a mental model ("The simplest mental model is the one your customers already use") stays clean.
+### Regression
+- test/engine.test.js covers both directions; test/test_gate_parity.py confirms JS/Python agreement. Tests were written first and failed before the catalog entry landed.
+- A scan of livingwebsites.ca's 257 shipped pages found zero hits.
+
 ## [1.0.12] / catalog [1.0.7] - 2026-09-11
 ### Added
 - Sourced from OpenAI's own GPT-6 Astra model-guidance page (fetched 2026-09-05/2026-09-11 by mycelium's gate-research pass, Day 20, F1020 section 4), which publishes a producer-side "slop words"/stock-phrase blocklist for its own newest model. Cross-checked item by item against the live catalog (not from memory); several items were already covered, several were genuinely new.

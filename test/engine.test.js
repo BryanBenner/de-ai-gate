@@ -225,6 +225,19 @@ test('findDeAiTells does NOT flag "in short" without the colon (functional conne
   assert.deepEqual(findDeAiTells('<p>In short supply this season, gutter guards sell out fast.</p>'), []);
 });
 
+// v1.0.8 catalog (mycelium gate-research F1118/F1124, queen dispatch
+// 20260926T081000Z): the same OpenAI blocklist names "The simplest mental
+// model is:" as a stock explainer opener. Colon-anchored like "Bottom Line:",
+// so ordinary prose that mentions a mental model stays clean.
+test('findDeAiTells HARD-flags "The simplest mental model is:" as a colon-anchored opener (v1.0.8)', () => {
+  assert.ok(findDeAiTells('<p>The simplest mental model is: your site is a garden.</p>').some(h => /mental model/.test(h.name)));
+  assert.ok(findDeAiTells('<p>The easiest mental model here is: a ledger.</p>').some(h => /mental model/.test(h.name)));
+});
+test('findDeAiTells does NOT flag "mental model" in ordinary prose without the colon opener (v1.0.8)', () => {
+  assert.deepEqual(findDeAiTells('<p>Most owners carry a mental model of their site as a brochure.</p>'), []);
+  assert.deepEqual(findDeAiTells('<p>The simplest mental model is the one your customers already use.</p>'), []);
+});
+
 // The two-sentence "This isn't about X. It's about Y." structural reframe --
 // OpenAI's own worked example of a stock rhetorical pattern. Distinct from the
 // existing single-clause "not just X, it's/but Y" HARD tell (no intensifier,

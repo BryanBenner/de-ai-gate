@@ -126,3 +126,14 @@ def test_openai_blocklist_hard_tells_parity_v107():
     assert js_names == py_names
     assert any("Bottom Line" in n for n in py_names)
     assert any("isn't about" in n for n in py_names)
+
+
+def test_simplest_mental_model_opener_parity_v108():
+    # v1.0.8 catalog (mycelium F1118/F1124, queen dispatch 20260926T081000Z):
+    # "The simplest mental model is:" must agree between engines.
+    sample = "<p>The simplest mental model is: a ledger that grows.</p>"
+    js_names = _js_tell_names(sample)
+    assert js_names, "parity sample produced zero JS hits -- test would be vacuous"
+    py_names = sorted(h["name"] for h in gate.find_de_ai_tells(sample))
+    assert js_names == py_names
+    assert any("mental model" in n for n in py_names)
