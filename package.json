@@ -4,6 +4,7 @@
   "description": "A read-only content-honesty gate: catches de-AI typographic and phrase tells before content ships. No network, no credentials, no auto-run.",
   "type": "module",
   "bin": { "de-ai-gate": "./cli.mjs" },
+  "files": ["cli.mjs", "engine.js", "catalog.json", "gate.py", "SKILL.md", "CHANGELOG.md"],
   "scripts": {
     "test": "bun test && python -m pytest test/ -q"
   },
