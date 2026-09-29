@@ -207,7 +207,9 @@ function attr(tag, name) {
   return m ? m[1] : null;
 }
 
-export function findInsecureFormActions(html) {
+const TEMPLATED_ACTION_RE = /^\s*\{\{[\s\S]*\}\}\s*$/;
+
+export function findInsecureFormActions(html, { allowTemplatedAction = false } = {}) {
   const forms = html.match(FORM_TAG_RE) || [];
   if (forms.length === 0) return [];
   const jsSecured = JS_SECURED_SUBMIT_RE.test(html);
@@ -219,12 +221,13 @@ export function findInsecureFormActions(html) {
     const declaredSecure = hasRealAction && method === 'post';
     if (declaredSecure) continue;
     if (action === null && jsSecured) continue; // no literal action, but page-wide JS secures the submit
+    if (allowTemplatedAction && action !== null && TEMPLATED_ACTION_RE.test(action)) continue;
     bad.push(tag.length > 120 ? tag.slice(0, 120) + '...' : tag);
   }
   return bad;
 }
 
-export function findStructuralWarnings(html) {
+export function findStructuralWarnings(html, opts = {}) {
   const text = extractVisibleText(html);
   const words = (text.match(/\b[\w']+\b/g) || []).length;
   const warn = [];
@@ -234,7 +237,7 @@ export function findStructuralWarnings(html) {
     warn.push(`${mailtoHrefs}x href="mailto:" anchor - replace with a click-to-copy control + on-page form (operator directive 2026-07-23: no mailto: links, tel:/sms:/wa.me stay)`);
   }
 
-  const insecureForms = findInsecureFormActions(html);
+  const insecureForms = findInsecureFormActions(html, opts);
   if (insecureForms.length >= 1) {
     warn.push(`${insecureForms.length}x insecure form action - form must POST to a real endpoint (e.g. action="/api/lead" method="post") or have its submit JS-secured to one; found: ${insecureForms.join(' | ')}`);
   }

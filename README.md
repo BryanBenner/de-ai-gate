@@ -42,6 +42,38 @@ de-AI gate FAILED (2 HARD violations).
 (wire it straight into a pre-commit hook or CI). Use `--warn-only` for a
 non-blocking baseline pass. Run `--html` and `--records` as separate invocations.
 
+## Config file (optional)
+
+With no arguments, `cli.mjs` reads `./de-ai-gate.config.json` from the current
+directory if one exists. Point at another file with `--config <path>`. With no
+config file and no arguments, the CLI behaves exactly as before. Paths given on
+the command line (`--html`, `--records`, bare paths) always win over `scan`.
+Malformed JSON, an unknown key, or an unknown rule value stops the run with exit `2`.
+
+`scan` sets the default targets when no paths are given:
+
+```json
+{ "scan": { "html": ["public/articles", "public/guides", "public/signals"], "records": [] } }
+```
+
+`suppress` drops the insecure form action WARN for a form whose `action` is a
+whole template expression, such as `action="{{ form.url }}"`. Other forms still warn.
+This is the only rule it accepts today:
+
+```json
+{ "suppress": [ { "warn": "insecure-form-action", "when": "templated-action" } ] }
+```
+
+`promote` turns a missing path or an unreadable directory into a hard stop (exit `2`)
+instead of a printed note. Leave it out to keep the default:
+
+```json
+{ "promote": { "missingPath": "error", "unreadableDir": "error" } }
+```
+
+The config file is read by the JS CLI only. `gate.py` takes arguments and does not
+read it; it has no WARN checks, so `suppress` would have nothing to act on there.
+
 ## Why this one is safe to install
 
 Many popular Agent Skills quietly auto-run on session start, hoard credentials, or
@@ -85,8 +117,8 @@ same pass before every push.
 ## Tests
 
 ```bash
-bun test                 # 22 JS tests (engine, CLI, catalog self-gate, publish-safety)
-python -m pytest test/   # 8 Python parity + publish-safety tests
+bun test                 # 74 JS tests (engine, CLI, config, catalog, self-gate)
+python -m pytest test/   # 14 Python parity + publish-safety tests
 ```
 
 Single tell catalog (`catalog.json`) feeds both the JS and Python engines, so the

@@ -3,6 +3,20 @@
 All notable changes to de-ai-gate are documented here.
 Format follows Keep a Changelog; this project uses semantic versioning.
 
+## [1.0.14] - 2026-09-29
+### Added
+- Optional `de-ai-gate.config.json`. `cli.mjs` reads it from the current directory when present, or from `--config <path>`. Three keys:
+  - `scan`: default `html` and `records` targets used when no paths are passed on the command line.
+  - `suppress`: `{ "warn": "insecure-form-action", "when": "templated-action" }` skips the insecure form action WARN when a form's `action` is a whole `{{ ... }}` template expression. Other forms still warn.
+  - `promote`: `missingPath` and `unreadableDir` set to `"error"` turn those already-reported signals into exit `2`.
+- Malformed JSON, unknown keys, and unknown rule values exit `2` with a config error.
+- `findInsecureFormActions` and `findStructuralWarnings` accept an optional `{ allowTemplatedAction }` argument.
+### Unchanged
+- The argument contract. Command-line paths win over `scan`, and with no config file the CLI behaves as in 1.0.13, so a pre-push hook calling `--html <file>` sees no difference.
+- `gate.py` does not read the config file. It has no WARN checks, so `suppress` has nothing to act on there.
+### Regression
+- New test/config.test.js (18 tests) covers each key, the no-config path, command-line precedence, and the config error cases.
+
 ## [1.0.13] / catalog [1.0.8] - 2026-09-26
 ### Added
 - New HARD phraseTell: `The simplest mental model is:` (also `easiest`, optional `here`), a stock explainer opener named on the same OpenAI GPT-6 Astra blocklist as catalog 1.0.7 and missed in that pass. Colon-anchored like `Bottom Line:`, so prose that merely mentions a mental model ("The simplest mental model is the one your customers already use") stays clean.
